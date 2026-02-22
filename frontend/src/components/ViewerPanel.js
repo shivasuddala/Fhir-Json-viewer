@@ -316,10 +316,35 @@ function getExtension(contentType) {
 
 /**
  * Extract all attachments from a FHIR resource
- * Handles: FHIR Attachment objects, data URIs, and base64 strings
+ * Handles: FHIR Attachment objects, data URIs, double-encoded base64, and base64 strings
  */
 function extractAttachments(data, path = '') {
   const attachments = [];
+
+  function isLikelyBase64(str) {
+    if (!/^[A-Za-z0-9+/=]+$/.test(str)) return false;
+    return str.length % 4 === 0 && str.length > 100;
+  }
+
+  function tryDecodeBase64(str) {
+    try {
+      const decoded = atob(str);
+      if (decoded.startsWith('data:') || /^[\x20-\x7E\s]+$/.test(decoded.substring(0, 100))) {
+        return decoded;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  function parseDataUri(dataUri) {
+    const match = dataUri.match(/^data:([^;]+);base64,(.+)$/);
+    if (match) {
+      return { mimeType: match[1], data: match[2] };
+    }
+    return null;
+  }
 
   function walk(node, currentPath) {
     if (!node || typeof node !== 'object') return;
@@ -331,25 +356,63 @@ function extractAttachments(data, path = '') {
 
     // Check if this is an Attachment object (FHIR standard)
     if (node.contentType && (node.data || node.url)) {
+      let attachmentData = node.data;
+      let contentType = node.contentType;
+      let isDoubleEncoded = false;
+
+      // Check for double-encoded data
+      if (node.data && isLikelyBase64(node.data)) {
+        const decoded = tryDecodeBase64(node.data);
+        if (decoded && decoded.startsWith('data:')) {
+          const innerInfo = parseDataUri(decoded);
+          if (innerInfo) {
+            attachmentData = innerInfo.data;
+            contentType = innerInfo.mimeType;
+            isDoubleEncoded = true;
+          }
+        }
+      }
+
       attachments.push({
         ...node,
-        _path: currentPath
+        data: attachmentData,
+        contentType: contentType,
+        _path: currentPath,
+        _isDoubleEncoded: isDoubleEncoded
       });
     }
 
-    // Check for data URI strings in any field
+    // Check for data URI strings or base64 in any field
     Object.entries(node).forEach(([key, value]) => {
-      if (typeof value === 'string' && /^data:[^;]+;base64,/.test(value)) {
-        // Parse data URI
-        const match = value.match(/^data:([^;]+);base64,(.+)$/);
-        if (match) {
-          attachments.push({
-            contentType: match[1],
-            data: match[2],
-            title: `${key} (Data URI)`,
-            _path: currentPath ? `${currentPath}.${key}` : key,
-            _isDataUri: true
-          });
+      if (typeof value === 'string') {
+        // Direct data URI
+        if (/^data:[^;]+;base64,/.test(value)) {
+          const info = parseDataUri(value);
+          if (info) {
+            attachments.push({
+              contentType: info.mimeType,
+              data: info.data,
+              title: `${key} (Data URI)`,
+              _path: currentPath ? `${currentPath}.${key}` : key,
+              _isDataUri: true
+            });
+          }
+        }
+        // Check for double-encoded base64 (base64 -> decode -> data URI)
+        else if (key === 'data' && isLikelyBase64(value)) {
+          const decoded = tryDecodeBase64(value);
+          if (decoded && decoded.startsWith('data:')) {
+            const info = parseDataUri(decoded);
+            if (info) {
+              attachments.push({
+                contentType: info.mimeType,
+                data: info.data,
+                title: `${key} (Double-encoded)`,
+                _path: currentPath ? `${currentPath}.${key}` : key,
+                _isDoubleEncoded: true
+              });
+            }
+          }
         }
       }
       // Continue walking
@@ -360,7 +423,18 @@ function extractAttachments(data, path = '') {
   }
 
   walk(data, '');
-  return attachments;
+
+  // Remove duplicates based on path
+  const uniqueAttachments = [];
+  const seenPaths = new Set();
+  for (const att of attachments) {
+    if (!seenPaths.has(att._path)) {
+      seenPaths.add(att._path);
+      uniqueAttachments.push(att);
+    }
+  }
+
+  return uniqueAttachments;
 }
 
 export default ViewerPanel;

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useCallback, useRef, useImperativeHandle, forwardRef, useMemo } from 'react';
 import '../styles/components/JsonTreeViewer.css';
 
 /**
@@ -90,12 +90,33 @@ function JsonNode({ name, value, depth, onNavigateToRef, forceExpand }) {
   // Check if this is a URL
   const isUrl = typeof value === 'string' && (value.startsWith('http://') || value.startsWith('https://'));
 
-  // Check if this is base64 data (attachment) or data URI
-  const isBase64Data = typeof value === 'string' && value.length > 100 && (
-    (name === 'data' && isLikelyBase64(value)) ||
-    isDataUri(value)
-  );
-  const dataUriInfo = isBase64Data && isDataUri(value) ? parseDataUri(value) : null;
+  // Check if this is base64 data (attachment), data URI, or double-encoded
+  const attachmentInfo = useMemo(() => {
+    if (typeof value !== 'string' || value.length < 50) return null;
+
+    // Check if it's a direct data URI
+    if (isDataUri(value)) {
+      return parseDataUri(value);
+    }
+
+    // Check if it's likely base64 (for 'data' field or long base64-like strings)
+    if ((name === 'data' || value.length > 100) && isLikelyBase64(value)) {
+      // Try to decode and check if it's a data URI (double-encoded)
+      const decoded = tryDecodeBase64(value);
+      if (decoded && isDataUri(decoded)) {
+        const innerInfo = parseDataUri(decoded);
+        if (innerInfo) {
+          return { ...innerInfo, isDoubleEncoded: true };
+        }
+      }
+      // It's plain base64
+      return { data: value, mimeType: 'application/octet-stream', isPlainBase64: true };
+    }
+
+    return null;
+  }, [value, name]);
+
+  const isBase64Data = attachmentInfo !== null;
 
   const handleRefClick = useCallback((e) => {
     e.preventDefault();
@@ -110,18 +131,11 @@ function JsonNode({ name, value, depth, onNavigateToRef, forceExpand }) {
     e.preventDefault();
     e.stopPropagation();
 
-    let blob;
-    let filename = 'attachment';
+    if (!attachmentInfo) return;
 
-    if (dataUriInfo) {
-      // Data URI format: data:mime/type;base64,<data>
-      blob = base64ToBlob(dataUriInfo.data, dataUriInfo.mimeType);
-      const ext = getExtensionFromMime(dataUriInfo.mimeType);
-      filename = `attachment.${ext}`;
-    } else {
-      // Plain base64
-      blob = base64ToBlob(value, 'application/octet-stream');
-    }
+    const blob = base64ToBlob(attachmentInfo.data, attachmentInfo.mimeType);
+    const ext = getExtensionFromMime(attachmentInfo.mimeType);
+    const filename = `attachment.${ext}`;
 
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -129,7 +143,7 @@ function JsonNode({ name, value, depth, onNavigateToRef, forceExpand }) {
     a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
-  }, [value, dataUriInfo]);
+  }, [attachmentInfo]);
 
   // Render the key/name part
   const renderName = () => {
@@ -141,36 +155,58 @@ function JsonNode({ name, value, depth, onNavigateToRef, forceExpand }) {
   const renderPrimitive = () => {
     if (type === 'string') {
       // Base64 data or data URI - show truncated with download button
-      if (isBase64Data) {
-        const isImage = dataUriInfo?.mimeType?.startsWith('image/');
-        const truncated = dataUriInfo
-          ? `data:${dataUriInfo.mimeType};base64,...`
-          : value.substring(0, 50) + '...';
-        const size = dataUriInfo ? dataUriInfo.data.length * 0.75 : value.length * 0.75;
+      if (isBase64Data && attachmentInfo) {
+        const isImage = attachmentInfo.mimeType?.startsWith('image/');
+        const isPdf = attachmentInfo.mimeType === 'application/pdf';
+        const encodingNote = attachmentInfo.isDoubleEncoded ? ' [double-encoded]' : '';
+        const truncated = attachmentInfo.isPlainBase64
+          ? value.substring(0, 40) + '...'
+          : `data:${attachmentInfo.mimeType};base64,...`;
+        const size = attachmentInfo.data.length * 0.75;
+
+        // Create preview URL for images
+        const previewUrl = isImage
+          ? `data:${attachmentInfo.mimeType};base64,${attachmentInfo.data}`
+          : null;
 
         return (
           <span className="json-tree-string json-tree-base64">
-            "{truncated}"
+            "{truncated}{encodingNote}"
             <button
               className="json-tree-download-btn"
               onClick={handleBase64Download}
-              title="Download attachment"
+              title={`Download ${attachmentInfo.mimeType || 'attachment'}`}
             >
               ⬇️ Download
             </button>
-            {isImage && (
+            {isImage && previewUrl && (
               <button
                 className="json-tree-preview-btn"
                 onClick={(e) => {
                   e.stopPropagation();
-                  window.open(value, '_blank');
+                  window.open(previewUrl, '_blank');
                 }}
                 title="Preview image"
               >
                 👁️ Preview
               </button>
             )}
-            <span className="json-tree-base64-size">({formatBytes(size)})</span>
+            {isPdf && (
+              <button
+                className="json-tree-preview-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const pdfUrl = `data:application/pdf;base64,${attachmentInfo.data}`;
+                  window.open(pdfUrl, '_blank');
+                }}
+                title="Open PDF"
+              >
+                📄 Open PDF
+              </button>
+            )}
+            <span className="json-tree-base64-size">
+              ({formatBytes(size)}) {attachmentInfo.mimeType || 'binary'}
+            </span>
           </span>
         );
       }
@@ -317,6 +353,21 @@ function isLikelyBase64(str) {
   if (!/^[A-Za-z0-9+/=]+$/.test(str)) return false;
   // Length should be multiple of 4
   return str.length % 4 === 0;
+}
+
+function tryDecodeBase64(str) {
+  // Try to decode base64 and return the result as a string
+  // Returns null if decoding fails or result is not valid text
+  try {
+    const decoded = atob(str);
+    // Check if the decoded content looks like a data URI or text
+    if (decoded.startsWith('data:') || /^[\x20-\x7E\s]+$/.test(decoded.substring(0, 100))) {
+      return decoded;
+    }
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 function isDataUri(str) {
