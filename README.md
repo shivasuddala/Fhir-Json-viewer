@@ -4,6 +4,10 @@ A modern React-based viewer for HL7-FHIR R4 medical records with reference navig
 
 ![React](https://img.shields.io/badge/React-19-blue) ![FHIR](https://img.shields.io/badge/FHIR-R4-green) ![License](https://img.shields.io/badge/license-ISC-brightgreen)
 
+## 🌐 Live Demo
+
+👉 **[https://shivasuddala.github.io/Fhir-Json-viewer/](https://shivasuddala.github.io/Fhir-Json-viewer/)**
+
 ---
 
 ## ✨ Features
