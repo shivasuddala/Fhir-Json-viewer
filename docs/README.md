@@ -1,8 +1,8 @@
-# HCX FHIR Viewer — Documentation
+# FHIR JSON Viewer — Documentation
 
 ## Overview
 
-HCX FHIR Viewer is a 100% client-side React application for viewing and exploring HL7-FHIR R4 medical records. It supports NRCES FHIR profiles used in the Indian National Digital Health Mission (NDHM).
+FHIR JSON Viewer is a 100% client-side React application for viewing and exploring HL7-FHIR R4 medical records and any JSON data. It supports NRCES FHIR profiles used in the Indian National Digital Health Mission (NDHM), HL7 International profiles, and generic JSON visualization.
 
 **No backend server required** — all processing happens in the browser.
 

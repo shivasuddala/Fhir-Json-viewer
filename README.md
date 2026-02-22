@@ -1,8 +1,8 @@
-# 🏥 HCX FHIR Viewer
+# 🏥 FHIR JSON Viewer
 
-A modern React-based viewer for HL7-FHIR R4 medical records with reference navigation, interactive JSON tree, inline attachments, and source file grouping. Supports **NRCES India** and **HL7 International** FHIR profiles.
+A modern React-based viewer for HL7-FHIR R4 medical records and any JSON data with reference navigation, interactive JSON tree, inline attachments, and source file grouping. Supports **NRCES India** and **HL7 International** FHIR profiles, plus **generic JSON** viewing.
 
-![React](https://img.shields.io/badge/React-19-blue) ![FHIR](https://img.shields.io/badge/FHIR-R4-green) ![NRCES](https://img.shields.io/badge/NRCES-India-orange) ![License](https://img.shields.io/badge/license-ISC-brightgreen)
+![React](https://img.shields.io/badge/React-19-blue) ![FHIR](https://img.shields.io/badge/FHIR-R4-green) ![NRCES](https://img.shields.io/badge/NRCES-India-orange) ![JSON](https://img.shields.io/badge/JSON-Viewer-purple) ![License](https://img.shields.io/badge/license-ISC-brightgreen)
 
 ## 🌐 Live Demo
 
@@ -15,8 +15,9 @@ A modern React-based viewer for HL7-FHIR R4 medical records with reference navig
 | Feature | Description |
 |---------|-------------|
 | 📁 **File Upload** | Upload JSON files via click or drag-and-drop |
+| 📂 **Folder Upload** | Upload entire folders of JSON/text files at once |
 | 📂 **Source Grouping** | Resources grouped by source file with collapse/expand |
-| 📋 **Paste JSON** | Paste FHIR resources via modal dialog |
+| 📋 **Paste JSON** | Paste FHIR resources or any JSON via modal dialog |
 | 🔗 **Reference Navigation** | Click references to navigate to linked resources |
 | ⬅️ **Back Navigation** | Return to parent resource with Back button |
 | 🌗 **Dark/Light Mode** | Toggle themes with Ctrl+D |
@@ -26,6 +27,8 @@ A modern React-based viewer for HL7-FHIR R4 medical records with reference navig
 | 📎 **Inline Attachments** | View/download images, PDFs, text, audio, video |
 | 🔍 **Search & Filter** | Real-time filtering by type or ID |
 | 📤 **Export Bundle** | Export all resources as FHIR Bundle |
+| 📋 **Generic JSON** | View any JSON data with Tree and formatted views |
+| 📄 **Multi-Format Files** | Accept .json, .txt, .text, .xml, .fhir and other text files containing JSON |
 | 🔒 **100% Client-side** | No data leaves your browser |
 
 ---

@@ -585,3 +585,22 @@ kbd {
   color: var(--text-muted);
 }
 
+/* --- JSON Hint for generic JSON --- */
+.json-hint {
+  padding: 16px 20px;
+  margin-top: 16px;
+  background: var(--bg-input);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 13px;
+  border-left: 3px solid var(--accent);
+}
+
+.json-hint em {
+  font-style: normal;
+}
+
+.json-hint strong {
+  color: var(--text-primary);
+}
+

@@ -16,11 +16,36 @@ export function parseJson(json, source = null) {
   } else if (json.resourceType) {
     resources.push(createResource(json, sourceInfo));
   } else if (Array.isArray(json)) {
-    json.forEach((item) => {
-      if (item.resourceType) resources.push(createResource(item, sourceInfo));
-    });
+    // Check if array contains FHIR resources
+    const fhirItems = json.filter(item => item && item.resourceType);
+    if (fhirItems.length > 0) {
+      fhirItems.forEach((item) => {
+        resources.push(createResource(item, sourceInfo));
+      });
+    } else {
+      // Non-FHIR array - treat as generic JSON
+      resources.push(createGenericJsonResource(json, sourceInfo));
+    }
+  } else if (typeof json === 'object' && json !== null) {
+    // Non-FHIR JSON object - treat as generic JSON
+    resources.push(createGenericJsonResource(json, sourceInfo));
   }
   return resources;
+}
+
+function createGenericJsonResource(obj, source) {
+  return {
+    type: 'JSON',
+    id: `json-${Date.now().toString(36)}`,
+    data: obj,
+    source: source,
+    isGenericJson: true, // Flag to identify non-FHIR resources
+    get json() {
+      const val = JSON.stringify(obj, null, 2);
+      Object.defineProperty(this, 'json', { value: val });
+      return val;
+    },
+  };
 }
 
 function createResource(obj, source) {
@@ -147,6 +172,9 @@ export function getResourceIcon(type) {
     MedicinalProductIngredient: '🧪', MedicinalProductPackaged: '📦',
     OrganizationAffiliation: '🏢', SubstanceSpecification: '🧪',
     TerminologyCapabilities: '📖', TestReport: '📋', TestScript: '📋',
+
+    // Generic JSON (non-FHIR)
+    JSON: '📋',
   };
   return icons[type] || '📄';
 }
@@ -370,6 +398,10 @@ const renderers = {
 };
 
 export function renderFormattedView(resource) {
+  // Check if this is a generic non-FHIR JSON resource
+  if (resource.isGenericJson) {
+    return renderGenericJson(resource.data);
+  }
   const fn = renderers[resource.type];
   return fn ? fn(resource.data) : renderGeneric(resource.data);
 }
@@ -2264,6 +2296,61 @@ function renderGeneric(data) {
   });
 
   h += sectionEnd();
+  return h;
+}
+
+// ─── Generic JSON fallback (non-FHIR) ───────────────────────────────────
+
+function renderGenericJson(data) {
+  let h = section('📋', 'JSON Data');
+
+  if (Array.isArray(data)) {
+    h += row('Type', statusBadge('Array', 'info'));
+    h += row('Length', escapeHtml(String(data.length)));
+    h += sub('📄 Items');
+    data.slice(0, 30).forEach((item, i) => {
+      if (typeof item === 'object' && item !== null) {
+        const preview = JSON.stringify(item).substring(0, 100);
+        h += row(`[${i}]`, `<span class="coding-system">${escapeHtml(preview)}${preview.length >= 100 ? '…' : ''}</span>`);
+      } else {
+        h += row(`[${i}]`, escapeHtml(String(item)));
+      }
+    });
+    if (data.length > 30) h += row('...', `${data.length - 30} more items`);
+    h += subEnd();
+  } else if (typeof data === 'object' && data !== null) {
+    h += row('Type', statusBadge('Object', 'info'));
+    h += row('Keys', escapeHtml(String(Object.keys(data).length)));
+
+    const keys = Object.keys(data).slice(0, 40);
+    keys.forEach((key) => {
+      const value = data[key];
+      if (value === null) {
+        h += row(key, '<span class="coding-system">null</span>');
+      } else if (value === undefined) {
+        h += row(key, '<span class="coding-system">undefined</span>');
+      } else if (typeof value === 'boolean') {
+        h += row(key, statusBadge(String(value), value ? 'success' : 'warning'));
+      } else if (typeof value === 'number') {
+        h += row(key, `<span class="json-number">${escapeHtml(String(value))}</span>`);
+      } else if (typeof value === 'string') {
+        // Truncate long strings
+        const display = value.length > 150 ? value.substring(0, 150) + '…' : value;
+        h += row(key, escapeHtml(display));
+      } else if (Array.isArray(value)) {
+        h += row(key, `<span class="coding-system">Array[${value.length}]</span>`);
+      } else if (typeof value === 'object') {
+        const preview = JSON.stringify(value).substring(0, 80);
+        h += row(key, `<span class="coding-system">${escapeHtml(preview)}${preview.length >= 80 ? '…' : ''}</span>`);
+      }
+    });
+    if (Object.keys(data).length > 40) h += row('...', `${Object.keys(data).length - 40} more fields`);
+  } else {
+    h += row('Value', escapeHtml(String(data)));
+  }
+
+  h += sectionEnd();
+  h += `<div class="json-hint"><em>💡 Use the <strong>Tree</strong> or <strong>JSON</strong> view for full data exploration</em></div>`;
   return h;
 }
 

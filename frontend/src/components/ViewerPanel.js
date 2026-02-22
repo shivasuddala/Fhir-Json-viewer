@@ -65,11 +65,11 @@ function ViewerPanel({ resource, viewMode, onViewModeChange, totalResources, onF
             </div>
           </div>
           <h2 className="welcome-title">
-            {totalResources === 0 ? 'Load FHIR Resources' : 'Select a Resource'}
+            {totalResources === 0 ? 'Load JSON Data' : 'Select a Resource'}
           </h2>
           <p className="welcome-desc">
             {totalResources === 0
-              ? 'Upload JSON files, drag & drop, or paste FHIR data to begin exploring healthcare records.'
+              ? 'Upload JSON files, drag & drop, or paste data to begin. Supports FHIR resources and any JSON data.'
               : 'Click on a resource in the sidebar to view its details here.'}
           </p>
           {totalResources === 0 && (

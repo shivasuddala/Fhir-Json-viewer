@@ -97,25 +97,63 @@ function App() {
 
   const handleFileUpload = useCallback(
     (files) => {
-      Array.from(files).forEach((file) => {
+      // Filter to only process text-based files
+      const textExtensions = ['.json', '.txt', '.text', '.xml', '.fhir', '.ndjson', '.csv', '.log', '.md', '.yaml', '.yml', '.html', '.htm'];
+      const validFiles = Array.from(files).filter((file) => {
+        const ext = '.' + file.name.split('.').pop().toLowerCase();
+        return textExtensions.includes(ext) || file.type.startsWith('text/') || file.type === 'application/json';
+      });
+
+      if (validFiles.length === 0 && files.length > 0) {
+        showNotification('No valid text files found. Please upload JSON or text-based files.', 'warning');
+        return;
+      }
+
+      validFiles.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
           try {
-            const json = JSON.parse(e.target.result);
+            const content = e.target.result;
+            let json;
+
+            // Try to parse as JSON directly
+            try {
+              json = JSON.parse(content);
+            } catch {
+              // Try to extract JSON from the content (e.g., embedded in markdown, txt)
+              const jsonMatch = content.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+              if (jsonMatch) {
+                try {
+                  json = JSON.parse(jsonMatch[0]);
+                } catch {
+                  showNotification(`Could not parse JSON from ${file.name}`, 'warning');
+                  return;
+                }
+              } else {
+                showNotification(`No valid JSON found in ${file.name}`, 'warning');
+                return;
+              }
+            }
+
             const sourceId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             const source = { name: file.name, id: sourceId };
             const newResources = parseJson(json, source);
+
             if (newResources.length === 0) {
-              showNotification(`No FHIR resources found in ${file.name}`, 'warning');
+              showNotification(`No resources found in ${file.name}`, 'warning');
               return;
             }
+
             setResources((prev) => [...prev, ...newResources]);
-            showNotification(`Loaded ${newResources.length} resource(s) from ${file.name}`);
+            const isFhir = newResources.some(r => !r.isGenericJson);
+            const resourceTypeLabel = isFhir ? 'FHIR resource' : 'JSON';
+            showNotification(`Loaded ${newResources.length} ${resourceTypeLabel}(s) from ${file.name}`);
+
             if (newResources.length > 0 && selectedIndex === null) {
               setSelectedIndex(0);
             }
-          } catch {
-            showNotification(`Invalid JSON in ${file.name}`, 'error');
+          } catch (err) {
+            showNotification(`Error processing ${file.name}: ${err.message}`, 'error');
           }
         };
         reader.readAsText(file);
@@ -131,12 +169,16 @@ function App() {
         const sourceId = `paste-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         const source = { name: 'Pasted JSON', id: sourceId };
         const newResources = parseJson(json, source);
+
         if (newResources.length === 0) {
-          showNotification('No valid FHIR resources found', 'error');
+          showNotification('No valid JSON found', 'error');
           return false;
         }
+
         setResources((prev) => [...prev, ...newResources]);
-        showNotification(`Added ${newResources.length} resource(s)`);
+        const isFhir = newResources.some(r => !r.isGenericJson);
+        const resourceTypeLabel = isFhir ? 'FHIR resource' : 'JSON';
+        showNotification(`Added ${newResources.length} ${resourceTypeLabel}(s)`);
         setShowPasteModal(false);
         return true;
       } catch (err) {
@@ -364,8 +406,8 @@ function App() {
         <div className="drag-overlay">
           <div className="drag-overlay-content">
             <span className="drag-icon">📂</span>
-            <h3>Drop FHIR JSON files here</h3>
-            <p>Release to upload and parse</p>
+            <h3>Drop JSON files here</h3>
+            <p>Supports FHIR resources and any JSON data</p>
           </div>
         </div>
       )}
