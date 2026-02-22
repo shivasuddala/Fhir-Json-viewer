@@ -1,10 +1,10 @@
 {
-  "name": "hcx-fhir-util-frontend",
-  "version": "2.0.0",
-  "description": "Advanced React-based viewer for HL7-FHIR medical records. Works offline, no setup required.",
-  "author": "AI Assistant",
+  "name": "fhir-json-viewer-frontend",
+  "version": "2.1.0",
+  "description": "Modern React-based FHIR R4 viewer supporting NRCES India and HL7 profiles with 70+ resource types. Works offline, no setup required.",
+  "author": "Shiva Suddala",
   "license": "ISC",
-  "keywords": ["FHIR", "HL7", "medical-records", "healthcare", "React"],
+  "keywords": ["FHIR", "HL7", "NRCES", "HCX", "healthcare", "medical-records", "React", "ABDM"],
   "main": "src/index.js",
   "scripts": {
     "start": "webpack serve --mode development",

@@ -1,9 +1,15 @@
 {
-  "name": "hcx-fhir-util",
-  "version": "2.0.0",
-  "description": "FHIR viewer utilities with a React frontend and Java backend.",
+  "name": "fhir-json-viewer",
+  "version": "2.1.0",
+  "description": "Modern React-based FHIR R4 viewer supporting NRCES India and HL7 profiles with 70+ resource types",
+  "author": "Shiva Suddala",
   "license": "ISC",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shivasuddala/Fhir-Json-viewer.git"
+  },
+  "keywords": ["FHIR", "HL7", "NRCES", "HCX", "healthcare", "medical-records", "React"],
   "scripts": {
     "start": "npm --prefix frontend start",
     "build": "npm --prefix frontend run build",

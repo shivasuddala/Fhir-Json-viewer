@@ -81,18 +81,72 @@ export function renderJsonWithRefs(jsonString) {
 
 export function getResourceIcon(type) {
   const icons = {
+    // Core Resources
     Patient: '👤', Practitioner: '👨‍⚕️', PractitionerRole: '🩻',
     Organization: '🏢', Observation: '📊', Procedure: '🏥',
     Medication: '💊', MedicationRequest: '📋', MedicationStatement: '📝',
-    MedicationAdministration: '💉', Condition: '🩺', Bundle: '📦',
-    Encounter: '🚪', DiagnosticReport: '📈', AllergyIntolerance: '⚠️',
-    Immunization: '💉', Device: '⚙️', Composition: '📑',
-    DocumentReference: '📎', Claim: '💰', ClaimResponse: '🧾',
-    Coverage: '🛡️', ServiceRequest: '📨', Specimen: '🧪',
-    CarePlan: '📅', CareTeam: '👥', Goal: '🎯',
-    FamilyMemberHistory: '👨‍👩‍👧', RelatedPerson: '🤝', Location: '📍',
-    HealthcareService: '🏨', Appointment: '📆', AppointmentResponse: '✅',
-    Task: '✏️', Communication: '💬', Consent: '📜', Binary: '🔢',
+    MedicationAdministration: '💉', MedicationDispense: '💊', Condition: '🩺',
+    Bundle: '📦', Encounter: '🚪', DiagnosticReport: '📈',
+    AllergyIntolerance: '⚠️', Immunization: '💉', ImmunizationRecommendation: '💉',
+    Device: '⚙️', DeviceDefinition: '⚙️', DeviceRequest: '⚙️', DeviceUseStatement: '⚙️',
+    Composition: '📑', DocumentReference: '📎', DocumentManifest: '📚',
+
+    // Financial Resources (HCX/Claims)
+    Claim: '💰', ClaimResponse: '🧾', Coverage: '🛡️', CoverageEligibilityRequest: '📋',
+    CoverageEligibilityResponse: '✅', ExplanationOfBenefit: '📄', PaymentNotice: '💳',
+    PaymentReconciliation: '💳', Invoice: '🧾', InsurancePlan: '🛡️', Account: '💼',
+    Contract: '📝', ChargeItem: '💵', ChargeItemDefinition: '💵',
+
+    // Clinical Resources
+    ServiceRequest: '📨', Specimen: '🧪', BodyStructure: '🫀',
+    CarePlan: '📅', CareTeam: '👥', Goal: '🎯', NutritionOrder: '🍎',
+    VisionPrescription: '👓', RiskAssessment: '⚡', DetectedIssue: '⚠️',
+    ClinicalImpression: '🔍', AdverseEvent: '⛔', Flag: '🚩',
+    FamilyMemberHistory: '👨‍👩‍👧', RelatedPerson: '🤝',
+
+    // Scheduling
+    Location: '📍', HealthcareService: '🏨', Appointment: '📆',
+    AppointmentResponse: '✅', Schedule: '📅', Slot: '⏰',
+
+    // Workflow
+    Task: '✏️', Communication: '💬', CommunicationRequest: '📨',
+    Consent: '📜', Provenance: '🔏', AuditEvent: '📋',
+
+    // Diagnostic
+    ImagingStudy: '🔬', Media: '🖼️', MolecularSequence: '🧬',
+    QuestionnaireResponse: '📝', Questionnaire: '❓',
+
+    // Medication
+    MedicationKnowledge: '📚', MedicationDispense: '💊',
+
+    // Binary/Basic
+    Binary: '🔢', Basic: '📄', List: '📋', Group: '👥',
+
+    // NRCES India Specific
+    HealthDocumentBundle: '📦', OPConsultRecord: '🏥', PrescriptionRecord: '📋',
+    DiagnosticReportRecord: '📈', DischargeSummaryRecord: '📄',
+    ImmunizationRecord: '💉', WellnessRecord: '❤️', HealthDocumentRecord: '📄',
+
+    // Terminology
+    ValueSet: '📖', CodeSystem: '📚', ConceptMap: '🗺️', NamingSystem: '📛',
+
+    // Conformance
+    CapabilityStatement: '📋', StructureDefinition: '🏗️', ImplementationGuide: '📖',
+    OperationDefinition: '⚙️', SearchParameter: '🔍', MessageDefinition: '📨',
+
+    // Other
+    Endpoint: '🔗', Subscription: '📡', OperationOutcome: '⚠️',
+    Parameters: '⚙️', Person: '👤', Linkage: '🔗', ResearchStudy: '🔬',
+    ResearchSubject: '🔬', EpisodeOfCare: '📋', RequestGroup: '📋',
+    ActivityDefinition: '📋', PlanDefinition: '📋', Library: '📚',
+    Measure: '📏', MeasureReport: '📊', GuidanceResponse: '💡',
+    SupplyRequest: '📦', SupplyDelivery: '📦', EnrollmentRequest: '📝',
+    EnrollmentResponse: '✅', VerificationResult: '✅', BiologicallyDerivedProduct: '🧬',
+    CatalogEntry: '📖', EffectEvidenceSynthesis: '📊', Evidence: '📊',
+    EvidenceVariable: '📊', MedicinalProduct: '💊', MedicinalProductAuthorization: '✅',
+    MedicinalProductIngredient: '🧪', MedicinalProductPackaged: '📦',
+    OrganizationAffiliation: '🏢', SubstanceSpecification: '🧪',
+    TerminologyCapabilities: '📖', TestReport: '📋', TestScript: '📋',
   };
   return icons[type] || '📄';
 }
@@ -215,34 +269,104 @@ function row(label, value) {
 // ─── Main dispatcher ────────────────────────────────────────────────────
 
 const renderers = {
+  // Core Clinical
   Patient: renderPatient,
   Practitioner: renderPractitioner,
   PractitionerRole: renderPractitionerRole,
   Organization: renderOrganization,
   Observation: renderObservation,
   Condition: renderCondition,
+  Procedure: renderProcedure,
+  Encounter: renderEncounter,
+  EpisodeOfCare: renderEpisodeOfCare,
+
+  // Medication
   Medication: renderMedication,
   MedicationRequest: renderMedicationRequest,
   MedicationStatement: renderMedicationStatement,
   MedicationAdministration: renderMedicationAdministration,
-  Encounter: renderEncounter,
-  Procedure: renderProcedure,
+  MedicationDispense: renderMedicationDispense,
+
+  // Diagnostics
   DiagnosticReport: renderDiagnosticReport,
+  ImagingStudy: renderImagingStudy,
+  Media: renderMedia,
+  Specimen: renderSpecimen,
+
+  // Allergy & Immunization
   AllergyIntolerance: renderAllergyIntolerance,
   Immunization: renderImmunization,
+  ImmunizationRecommendation: renderImmunizationRecommendation,
+
+  // Documents
   Composition: renderComposition,
-  Claim: renderClaim,
-  Coverage: renderCoverage,
-  ServiceRequest: renderServiceRequest,
   DocumentReference: renderDocumentReference,
+  DocumentManifest: renderDocumentManifest,
+  Binary: renderBinary,
+
+  // Financial (HCX)
+  Claim: renderClaim,
+  ClaimResponse: renderClaimResponse,
+  Coverage: renderCoverage,
+  CoverageEligibilityRequest: renderCoverageEligibilityRequest,
+  CoverageEligibilityResponse: renderCoverageEligibilityResponse,
+  ExplanationOfBenefit: renderExplanationOfBenefit,
+  PaymentNotice: renderPaymentNotice,
+  PaymentReconciliation: renderPaymentReconciliation,
+  InsurancePlan: renderInsurancePlan,
+
+  // Care Planning
+  ServiceRequest: renderServiceRequest,
   CarePlan: renderCarePlan,
   CareTeam: renderCareTeam,
-  Specimen: renderSpecimen,
   Goal: renderGoal,
-  FamilyMemberHistory: renderFamilyMemberHistory,
+  NutritionOrder: renderNutritionOrder,
+  VisionPrescription: renderVisionPrescription,
+  RiskAssessment: renderRiskAssessment,
+
+  // Scheduling
   Appointment: renderAppointment,
-  Location: renderLocation,
+  AppointmentResponse: renderAppointmentResponse,
+  Schedule: renderSchedule,
+  Slot: renderSlot,
+
+  // Devices
   Device: renderDevice,
+  DeviceRequest: renderDeviceRequest,
+  DeviceUseStatement: renderDeviceUseStatement,
+
+  // Administrative
+  Location: renderLocation,
+  HealthcareService: renderHealthcareService,
+  RelatedPerson: renderRelatedPerson,
+  Person: renderPerson,
+  Group: renderGroup,
+
+  // Clinical Reasoning
+  FamilyMemberHistory: renderFamilyMemberHistory,
+  ClinicalImpression: renderClinicalImpression,
+  DetectedIssue: renderDetectedIssue,
+  AdverseEvent: renderAdverseEvent,
+  Flag: renderFlag,
+
+  // Workflow
+  Task: renderTask,
+  Communication: renderCommunication,
+  CommunicationRequest: renderCommunicationRequest,
+  Consent: renderConsent,
+  Provenance: renderProvenance,
+  AuditEvent: renderAuditEvent,
+
+  // Questionnaire
+  Questionnaire: renderQuestionnaire,
+  QuestionnaireResponse: renderQuestionnaireResponse,
+
+  // Lists
+  List: renderList,
+
+  // Other
+  OperationOutcome: renderOperationOutcome,
+  Bundle: renderBundle,
 };
 
 export function renderFormattedView(resource) {
@@ -1156,6 +1280,957 @@ function renderDevice(d) {
   (d.note || []).forEach((n) => h += row('Note', escapeHtml(n.text || '')));
   h += sectionEnd();
   return h;
+}
+
+// ─── Additional Resource Renderers ──────────────────────────────────────
+
+function renderMedicationDispense(d) {
+  let h = section('💊', 'Medication Dispense');
+  h += row('Status', statusBadge(d.status));
+  h += row('Medication', d.medicationCodeableConcept ? ccFull(d.medicationCodeableConcept) : renderRef(d.medicationReference));
+  h += row('Subject', renderRef(d.subject));
+  h += row('Context', renderRef(d.context));
+  h += row('Performer', renderRef(d.performer?.[0]?.actor));
+  h += row('Location', renderRef(d.location));
+  h += row('Authorizing Prescription', renderRef(d.authorizingPrescription?.[0]));
+  h += row('Type', ccFull(d.type));
+  h += row('Quantity', quantity(d.quantity));
+  h += row('Days Supply', quantity(d.daysSupply));
+  h += row('When Prepared', fmtDateTime(d.whenPrepared));
+  h += row('When Handed Over', fmtDateTime(d.whenHandedOver));
+  h += row('Destination', renderRef(d.destination));
+  (d.receiver || []).forEach((r) => h += row('Receiver', renderRef(r)));
+  (d.note || []).forEach((n) => h += row('Note', escapeHtml(n.text || '')));
+  h += sectionEnd();
+  return h;
+}
+
+function renderImmunizationRecommendation(d) {
+  let h = section('💉', 'Immunization Recommendation');
+  h += row('Patient', renderRef(d.patient));
+  h += row('Date', fmtDateTime(d.date));
+  h += row('Authority', renderRef(d.authority));
+  if (d.recommendation?.length) {
+    h += sub('📋 Recommendations');
+    d.recommendation.forEach((r, i) => {
+      h += row(`#${i + 1}`, '');
+      (r.vaccineCode || []).forEach((v) => h += row('Vaccine', ccFull(v)));
+      h += row('Target Disease', ccFull(r.targetDisease));
+      h += row('Dose Number', r.doseNumberPositiveInt || r.doseNumberString || '');
+      h += row('Forecast Status', ccFull(r.forecastStatus));
+      (r.dateCriterion || []).forEach((dc) => {
+        h += row(cc(dc.code), fmtDateTime(dc.value));
+      });
+    });
+    h += subEnd();
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderImagingStudy(d) {
+  let h = section('🔬', 'Imaging Study');
+  h += row('Status', statusBadge(d.status));
+  h += row('Subject', renderRef(d.subject));
+  h += row('Encounter', renderRef(d.encounter));
+  h += row('Started', fmtDateTime(d.started));
+  (d.basedOn || []).forEach((b) => h += row('Based On', renderRef(b)));
+  h += row('Referrer', renderRef(d.referrer));
+  (d.interpreter || []).forEach((i) => h += row('Interpreter', renderRef(i)));
+  h += row('Number of Series', d.numberOfSeries);
+  h += row('Number of Instances', d.numberOfInstances);
+  h += row('Procedure Reference', renderRef(d.procedureReference));
+  (d.procedureCode || []).forEach((c) => h += row('Procedure', ccFull(c)));
+  h += row('Location', renderRef(d.location));
+  (d.reasonCode || []).forEach((c) => h += row('Reason', ccFull(c)));
+  (d.note || []).forEach((n) => h += row('Note', escapeHtml(n.text || '')));
+  if (d.series?.length) {
+    h += sub('📸 Series');
+    d.series.forEach((s, i) => {
+      h += row(`Series ${i + 1}`, escapeHtml(s.description || ''));
+      h += row('Modality', s.modality?.code || '');
+      h += row('Body Site', ccFull(s.bodySite));
+      h += row('Instances', s.numberOfInstances);
+    });
+    h += subEnd();
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderMedia(d) {
+  let h = section('🖼️', 'Media');
+  h += row('Status', statusBadge(d.status));
+  h += row('Type', ccFull(d.type));
+  h += row('Modality', ccFull(d.modality));
+  h += row('View', ccFull(d.view));
+  h += row('Subject', renderRef(d.subject));
+  h += row('Encounter', renderRef(d.encounter));
+  h += row('Created', d.createdDateTime ? fmtDateTime(d.createdDateTime) : d.createdPeriod ? period(d.createdPeriod) : '');
+  h += row('Issued', fmtDateTime(d.issued));
+  h += row('Operator', renderRef(d.operator));
+  (d.reasonCode || []).forEach((c) => h += row('Reason', ccFull(c)));
+  h += row('Body Site', ccFull(d.bodySite));
+  h += row('Device', renderRef(d.device));
+  h += row('Device Name', escapeHtml(d.deviceName || ''));
+  h += row('Height', d.height ? `${d.height} px` : '');
+  h += row('Width', d.width ? `${d.width} px` : '');
+  h += row('Duration', d.duration ? `${d.duration} sec` : '');
+  if (d.content) {
+    h += row('Content Type', escapeHtml(d.content.contentType || ''));
+    h += row('Size', d.content.size ? `${d.content.size} bytes` : '');
+  }
+  (d.note || []).forEach((n) => h += row('Note', escapeHtml(n.text || '')));
+  h += sectionEnd();
+  return h;
+}
+
+function renderDocumentManifest(d) {
+  let h = section('📚', 'Document Manifest');
+  h += row('Status', statusBadge(d.status));
+  h += row('Type', ccFull(d.type));
+  h += row('Subject', renderRef(d.subject));
+  h += row('Created', fmtDateTime(d.created));
+  (d.author || []).forEach((a) => h += row('Author', renderRef(a)));
+  (d.recipient || []).forEach((r) => h += row('Recipient', renderRef(r)));
+  h += row('Source', escapeHtml(d.source || ''));
+  h += row('Description', escapeHtml(d.description || ''));
+  if (d.content?.length) {
+    h += sub('📄 Content');
+    d.content.forEach((c, i) => h += row(`Document ${i + 1}`, renderRef(c)));
+    h += subEnd();
+  }
+  (d.related || []).forEach((r) => h += row('Related', renderRef(r.ref)));
+  h += sectionEnd();
+  return h;
+}
+
+function renderBinary(d) {
+  let h = section('🔢', 'Binary');
+  h += row('ID', escapeHtml(d.id || ''));
+  h += row('Content Type', escapeHtml(d.contentType || ''));
+  h += row('Security Context', renderRef(d.securityContext));
+  if (d.data) {
+    const size = Math.round(d.data.length * 0.75);
+    h += row('Data Size', `~${formatBytesSimple(size)}`);
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderClaimResponse(d) {
+  let h = section('🧾', 'Claim Response');
+  h += row('Status', statusBadge(d.status));
+  h += row('Type', ccFull(d.type));
+  h += row('Use', statusBadge(d.use, 'info'));
+  h += row('Patient', renderRef(d.patient));
+  h += row('Created', fmtDateTime(d.created));
+  h += row('Insurer', renderRef(d.insurer));
+  h += row('Requestor', renderRef(d.requestor));
+  h += row('Request', renderRef(d.request));
+  h += row('Outcome', statusBadge(d.outcome));
+  h += row('Disposition', escapeHtml(d.disposition || ''));
+  h += row('Pre Auth Ref', escapeHtml(d.preAuthRef || ''));
+  h += row('Payee Type', ccFull(d.payeeType));
+  if (d.payment) {
+    h += sub('💳 Payment');
+    h += row('Type', ccFull(d.payment.type));
+    h += row('Adjustment', quantity(d.payment.adjustment));
+    h += row('Amount', quantity(d.payment.amount));
+    h += row('Date', fmtDate(d.payment.date));
+    h += subEnd();
+  }
+  if (d.total?.length) {
+    h += sub('💰 Totals');
+    d.total.forEach((t) => h += row(ccFull(t.category), quantity(t.amount)));
+    h += subEnd();
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderCoverageEligibilityRequest(d) {
+  let h = section('📋', 'Coverage Eligibility Request');
+  h += row('Status', statusBadge(d.status));
+  h += row('Purpose', (d.purpose || []).map(p => statusBadge(p, 'info')).join(' '));
+  h += row('Patient', renderRef(d.patient));
+  h += row('Serviced', d.servicedDate ? fmtDate(d.servicedDate) : d.servicedPeriod ? period(d.servicedPeriod) : '');
+  h += row('Created', fmtDateTime(d.created));
+  h += row('Enterer', renderRef(d.enterer));
+  h += row('Provider', renderRef(d.provider));
+  h += row('Insurer', renderRef(d.insurer));
+  h += row('Facility', renderRef(d.facility));
+  (d.insurance || []).forEach((i) => {
+    h += row('Coverage', renderRef(i.coverage));
+    h += row('Business Arrangement', escapeHtml(i.businessArrangement || ''));
+  });
+  h += sectionEnd();
+  return h;
+}
+
+function renderCoverageEligibilityResponse(d) {
+  let h = section('✅', 'Coverage Eligibility Response');
+  h += row('Status', statusBadge(d.status));
+  h += row('Purpose', (d.purpose || []).map(p => statusBadge(p, 'info')).join(' '));
+  h += row('Patient', renderRef(d.patient));
+  h += row('Serviced', d.servicedDate ? fmtDate(d.servicedDate) : d.servicedPeriod ? period(d.servicedPeriod) : '');
+  h += row('Created', fmtDateTime(d.created));
+  h += row('Requestor', renderRef(d.requestor));
+  h += row('Request', renderRef(d.request));
+  h += row('Outcome', statusBadge(d.outcome));
+  h += row('Disposition', escapeHtml(d.disposition || ''));
+  h += row('Insurer', renderRef(d.insurer));
+  if (d.insurance?.length) {
+    h += sub('🛡️ Insurance');
+    d.insurance.forEach((i) => {
+      h += row('Coverage', renderRef(i.coverage));
+      h += row('In Force', i.inforce !== undefined ? statusBadge(String(i.inforce), i.inforce ? 'success' : 'error') : '');
+    });
+    h += subEnd();
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderExplanationOfBenefit(d) {
+  let h = section('📄', 'Explanation of Benefit');
+  h += row('Status', statusBadge(d.status));
+  h += row('Type', ccFull(d.type));
+  h += row('Sub Type', ccFull(d.subType));
+  h += row('Use', statusBadge(d.use, 'info'));
+  h += row('Patient', renderRef(d.patient));
+  h += row('Billable Period', d.billablePeriod ? period(d.billablePeriod) : '');
+  h += row('Created', fmtDateTime(d.created));
+  h += row('Insurer', renderRef(d.insurer));
+  h += row('Provider', renderRef(d.provider));
+  h += row('Outcome', statusBadge(d.outcome));
+  h += row('Disposition', escapeHtml(d.disposition || ''));
+  h += row('Claim', renderRef(d.claim));
+  h += row('Claim Response', renderRef(d.claimResponse));
+  if (d.total?.length) {
+    h += sub('💰 Totals');
+    d.total.forEach((t) => h += row(ccFull(t.category), quantity(t.amount)));
+    h += subEnd();
+  }
+  if (d.payment) {
+    h += row('Payment Amount', quantity(d.payment.amount));
+    h += row('Payment Date', fmtDate(d.payment.date));
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderPaymentNotice(d) {
+  let h = section('💳', 'Payment Notice');
+  h += row('Status', statusBadge(d.status));
+  h += row('Request', renderRef(d.request));
+  h += row('Response', renderRef(d.response));
+  h += row('Created', fmtDateTime(d.created));
+  h += row('Provider', renderRef(d.provider));
+  h += row('Payment', renderRef(d.payment));
+  h += row('Payment Date', fmtDate(d.paymentDate));
+  h += row('Payee', renderRef(d.payee));
+  h += row('Recipient', renderRef(d.recipient));
+  h += row('Amount', quantity(d.amount));
+  h += row('Payment Status', ccFull(d.paymentStatus));
+  h += sectionEnd();
+  return h;
+}
+
+function renderPaymentReconciliation(d) {
+  let h = section('💳', 'Payment Reconciliation');
+  h += row('Status', statusBadge(d.status));
+  h += row('Period', d.period ? period(d.period) : '');
+  h += row('Created', fmtDateTime(d.created));
+  h += row('Payment Issuer', renderRef(d.paymentIssuer));
+  h += row('Request', renderRef(d.request));
+  h += row('Requestor', renderRef(d.requestor));
+  h += row('Outcome', statusBadge(d.outcome));
+  h += row('Disposition', escapeHtml(d.disposition || ''));
+  h += row('Payment Date', fmtDate(d.paymentDate));
+  h += row('Payment Amount', quantity(d.paymentAmount));
+  h += sectionEnd();
+  return h;
+}
+
+function renderInsurancePlan(d) {
+  let h = section('🛡️', 'Insurance Plan');
+  h += row('Status', statusBadge(d.status));
+  h += row('Name', escapeHtml(d.name || ''));
+  (d.type || []).forEach((t) => h += row('Type', ccFull(t)));
+  h += row('Period', d.period ? period(d.period) : '');
+  (d.ownedBy || []).forEach ? (Array.isArray(d.ownedBy) ? d.ownedBy : [d.ownedBy]).forEach((o) => h += row('Owned By', renderRef(o))) : h += row('Owned By', renderRef(d.ownedBy));
+  (d.administeredBy || []).forEach ? (Array.isArray(d.administeredBy) ? d.administeredBy : [d.administeredBy]).forEach((a) => h += row('Administered By', renderRef(a))) : h += row('Administered By', renderRef(d.administeredBy));
+  (d.coverageArea || []).forEach((c) => h += row('Coverage Area', renderRef(c)));
+  h += sectionEnd();
+  return h;
+}
+
+function renderNutritionOrder(d) {
+  let h = section('🍎', 'Nutrition Order');
+  h += row('Status', statusBadge(d.status));
+  h += row('Intent', statusBadge(d.intent, 'info'));
+  h += row('Patient', renderRef(d.patient));
+  h += row('Encounter', renderRef(d.encounter));
+  h += row('DateTime', fmtDateTime(d.dateTime));
+  h += row('Orderer', renderRef(d.orderer));
+  (d.allergyIntolerance || []).forEach((a) => h += row('Allergy', renderRef(a)));
+  (d.foodPreferenceModifier || []).forEach((f) => h += row('Food Preference', ccFull(f)));
+  (d.excludeFoodModifier || []).forEach((e) => h += row('Exclude Food', ccFull(e)));
+  if (d.oralDiet) {
+    h += sub('🍽️ Oral Diet');
+    (d.oralDiet.type || []).forEach((t) => h += row('Type', ccFull(t)));
+    h += row('Instruction', escapeHtml(d.oralDiet.instruction || ''));
+    h += subEnd();
+  }
+  (d.note || []).forEach((n) => h += row('Note', escapeHtml(n.text || '')));
+  h += sectionEnd();
+  return h;
+}
+
+function renderVisionPrescription(d) {
+  let h = section('👓', 'Vision Prescription');
+  h += row('Status', statusBadge(d.status));
+  h += row('Created', fmtDateTime(d.created));
+  h += row('Patient', renderRef(d.patient));
+  h += row('Encounter', renderRef(d.encounter));
+  h += row('Date Written', fmtDateTime(d.dateWritten));
+  h += row('Prescriber', renderRef(d.prescriber));
+  if (d.lensSpecification?.length) {
+    h += sub('👁️ Lens Specification');
+    d.lensSpecification.forEach((l, i) => {
+      h += row(`Lens ${i + 1}`, '');
+      h += row('Eye', l.eye);
+      h += row('Sphere', l.sphere);
+      h += row('Cylinder', l.cylinder);
+      h += row('Axis', l.axis);
+      h += row('Add', l.add);
+      h += row('Power', l.power);
+    });
+    h += subEnd();
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderRiskAssessment(d) {
+  let h = section('⚡', 'Risk Assessment');
+  h += row('Status', statusBadge(d.status));
+  h += row('Subject', renderRef(d.subject));
+  h += row('Encounter', renderRef(d.encounter));
+  h += row('Occurrence', d.occurrenceDateTime ? fmtDateTime(d.occurrenceDateTime) : d.occurrencePeriod ? period(d.occurrencePeriod) : '');
+  h += row('Condition', renderRef(d.condition));
+  h += row('Performer', renderRef(d.performer));
+  (d.reasonCode || []).forEach((c) => h += row('Reason', ccFull(c)));
+  (d.basis || []).forEach((b) => h += row('Basis', renderRef(b)));
+  if (d.prediction?.length) {
+    h += sub('📊 Predictions');
+    d.prediction.forEach((p) => {
+      h += row('Outcome', ccFull(p.outcome));
+      h += row('Probability', p.probabilityDecimal !== undefined ? `${(p.probabilityDecimal * 100).toFixed(1)}%` : '');
+      h += row('When', p.whenPeriod ? period(p.whenPeriod) : p.whenRange ? `${quantity(p.whenRange.low)} - ${quantity(p.whenRange.high)}` : '');
+      h += row('Rationale', escapeHtml(p.rationale || ''));
+    });
+    h += subEnd();
+  }
+  h += row('Mitigation', escapeHtml(d.mitigation || ''));
+  (d.note || []).forEach((n) => h += row('Note', escapeHtml(n.text || '')));
+  h += sectionEnd();
+  return h;
+}
+
+function renderAppointmentResponse(d) {
+  let h = section('✅', 'Appointment Response');
+  h += row('Appointment', renderRef(d.appointment));
+  h += row('Start', fmtDateTime(d.start));
+  h += row('End', fmtDateTime(d.end));
+  (d.participantType || []).forEach((t) => h += row('Participant Type', ccFull(t)));
+  h += row('Actor', renderRef(d.actor));
+  h += row('Participant Status', statusBadge(d.participantStatus));
+  h += row('Comment', escapeHtml(d.comment || ''));
+  h += sectionEnd();
+  return h;
+}
+
+function renderSchedule(d) {
+  let h = section('📅', 'Schedule');
+  h += row('Active', d.active !== undefined ? statusBadge(String(d.active), d.active ? 'success' : 'error') : '');
+  (d.serviceCategory || []).forEach((c) => h += row('Service Category', ccFull(c)));
+  (d.serviceType || []).forEach((t) => h += row('Service Type', ccFull(t)));
+  (d.specialty || []).forEach((s) => h += row('Specialty', ccFull(s)));
+  (d.actor || []).forEach((a) => h += row('Actor', renderRef(a)));
+  h += row('Planning Horizon', d.planningHorizon ? period(d.planningHorizon) : '');
+  h += row('Comment', escapeHtml(d.comment || ''));
+  h += sectionEnd();
+  return h;
+}
+
+function renderSlot(d) {
+  let h = section('⏰', 'Slot');
+  h += row('Status', statusBadge(d.status));
+  (d.serviceCategory || []).forEach((c) => h += row('Service Category', ccFull(c)));
+  (d.serviceType || []).forEach((t) => h += row('Service Type', ccFull(t)));
+  (d.specialty || []).forEach((s) => h += row('Specialty', ccFull(s)));
+  h += row('Appointment Type', ccFull(d.appointmentType));
+  h += row('Schedule', renderRef(d.schedule));
+  h += row('Start', fmtDateTime(d.start));
+  h += row('End', fmtDateTime(d.end));
+  h += row('Overbooked', d.overbooked !== undefined ? String(d.overbooked) : '');
+  h += row('Comment', escapeHtml(d.comment || ''));
+  h += sectionEnd();
+  return h;
+}
+
+function renderDeviceRequest(d) {
+  let h = section('⚙️', 'Device Request');
+  h += row('Status', statusBadge(d.status));
+  h += row('Intent', statusBadge(d.intent, 'info'));
+  h += row('Priority', d.priority ? statusBadge(d.priority) : '');
+  h += row('Code', d.codeCodeableConcept ? ccFull(d.codeCodeableConcept) : renderRef(d.codeReference));
+  h += row('Subject', renderRef(d.subject));
+  h += row('Encounter', renderRef(d.encounter));
+  h += row('Occurrence', d.occurrenceDateTime ? fmtDateTime(d.occurrenceDateTime) : d.occurrencePeriod ? period(d.occurrencePeriod) : '');
+  h += row('Authored On', fmtDateTime(d.authoredOn));
+  h += row('Requester', renderRef(d.requester));
+  h += row('Performer', renderRef(d.performer));
+  (d.reasonCode || []).forEach((c) => h += row('Reason', ccFull(c)));
+  (d.note || []).forEach((n) => h += row('Note', escapeHtml(n.text || '')));
+  h += sectionEnd();
+  return h;
+}
+
+function renderDeviceUseStatement(d) {
+  let h = section('⚙️', 'Device Use Statement');
+  h += row('Status', statusBadge(d.status));
+  h += row('Subject', renderRef(d.subject));
+  h += row('Device', renderRef(d.device));
+  h += row('Timing', d.timingDateTime ? fmtDateTime(d.timingDateTime) : d.timingPeriod ? period(d.timingPeriod) : '');
+  h += row('Recorded On', fmtDateTime(d.recordedOn));
+  h += row('Source', renderRef(d.source));
+  (d.reasonCode || []).forEach((c) => h += row('Reason', ccFull(c)));
+  (d.reasonReference || []).forEach((r) => h += row('Reason Ref', renderRef(r)));
+  h += row('Body Site', ccFull(d.bodySite));
+  (d.note || []).forEach((n) => h += row('Note', escapeHtml(n.text || '')));
+  h += sectionEnd();
+  return h;
+}
+
+function renderHealthcareService(d) {
+  let h = section('🏨', 'Healthcare Service');
+  h += row('Active', d.active !== undefined ? statusBadge(String(d.active), d.active ? 'success' : 'error') : '');
+  h += row('Provided By', renderRef(d.providedBy));
+  (d.category || []).forEach((c) => h += row('Category', ccFull(c)));
+  (d.type || []).forEach((t) => h += row('Type', ccFull(t)));
+  (d.specialty || []).forEach((s) => h += row('Specialty', ccFull(s)));
+  (d.location || []).forEach((l) => h += row('Location', renderRef(l)));
+  h += row('Name', escapeHtml(d.name || ''));
+  h += row('Comment', escapeHtml(d.comment || ''));
+  h += row('Extra Details', escapeHtml(d.extraDetails || ''));
+  (d.telecom || []).forEach((t) => h += row(t.system || 'Contact', escapeHtml(t.value || '')));
+  (d.coverageArea || []).forEach((c) => h += row('Coverage Area', renderRef(c)));
+  h += row('Appointment Required', d.appointmentRequired !== undefined ? String(d.appointmentRequired) : '');
+  h += sectionEnd();
+  return h;
+}
+
+function renderRelatedPerson(d) {
+  let h = section('🤝', 'Related Person');
+  h += row('Active', d.active !== undefined ? statusBadge(String(d.active), d.active ? 'success' : 'error') : '');
+  h += row('Patient', renderRef(d.patient));
+  (d.relationship || []).forEach((r) => h += row('Relationship', ccFull(r)));
+  const name = d.name?.[0];
+  const nameStr = name ? (name.text || `${(name.given || []).join(' ')} ${name.family || ''}`.trim()) : '';
+  h += row('Name', escapeHtml(nameStr));
+  h += row('Gender', d.gender ? statusBadge(d.gender, 'info') : '');
+  h += row('Birth Date', fmtDate(d.birthDate));
+  (d.telecom || []).forEach((t) => h += row(t.system || 'Contact', escapeHtml(t.value || '')));
+  if (d.address?.length) {
+    d.address.forEach((a) => h += renderAddress(a));
+  }
+  h += row('Period', d.period ? period(d.period) : '');
+  h += sectionEnd();
+  return h;
+}
+
+function renderPerson(d) {
+  let h = section('👤', 'Person');
+  h += row('Active', d.active !== undefined ? statusBadge(String(d.active), d.active ? 'success' : 'error') : '');
+  const name = d.name?.[0];
+  const nameStr = name ? (name.text || `${(name.given || []).join(' ')} ${name.family || ''}`.trim()) : '';
+  h += row('Name', escapeHtml(nameStr));
+  h += row('Gender', d.gender ? statusBadge(d.gender, 'info') : '');
+  h += row('Birth Date', fmtDate(d.birthDate));
+  (d.telecom || []).forEach((t) => h += row(t.system || 'Contact', escapeHtml(t.value || '')));
+  if (d.address?.length) {
+    d.address.forEach((a) => h += renderAddress(a));
+  }
+  h += row('Managing Organization', renderRef(d.managingOrganization));
+  if (d.link?.length) {
+    h += sub('🔗 Links');
+    d.link.forEach((l) => h += row('Target', renderRef(l.target)));
+    h += subEnd();
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderGroup(d) {
+  let h = section('👥', 'Group');
+  h += row('Active', d.active !== undefined ? statusBadge(String(d.active), d.active ? 'success' : 'error') : '');
+  h += row('Type', d.type ? statusBadge(d.type, 'info') : '');
+  h += row('Actual', d.actual !== undefined ? String(d.actual) : '');
+  h += row('Code', ccFull(d.code));
+  h += row('Name', escapeHtml(d.name || ''));
+  h += row('Quantity', d.quantity !== undefined ? String(d.quantity) : '');
+  h += row('Managing Entity', renderRef(d.managingEntity));
+  if (d.member?.length) {
+    h += sub('👥 Members');
+    d.member.slice(0, 10).forEach((m) => {
+      h += row('Entity', renderRef(m.entity));
+      h += row('Period', m.period ? period(m.period) : '');
+      h += row('Inactive', m.inactive !== undefined ? String(m.inactive) : '');
+    });
+    if (d.member.length > 10) h += row('...', `${d.member.length - 10} more members`);
+    h += subEnd();
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderEpisodeOfCare(d) {
+  let h = section('📋', 'Episode of Care');
+  h += row('Status', statusBadge(d.status));
+  (d.type || []).forEach((t) => h += row('Type', ccFull(t)));
+  (d.diagnosis || []).forEach((diag) => {
+    h += row('Diagnosis', renderRef(diag.condition));
+    h += row('Role', ccFull(diag.role));
+    h += row('Rank', diag.rank !== undefined ? String(diag.rank) : '');
+  });
+  h += row('Patient', renderRef(d.patient));
+  h += row('Managing Organization', renderRef(d.managingOrganization));
+  h += row('Period', d.period ? period(d.period) : '');
+  (d.referralRequest || []).forEach((r) => h += row('Referral', renderRef(r)));
+  h += row('Care Manager', renderRef(d.careManager));
+  (d.team || []).forEach((t) => h += row('Team', renderRef(t)));
+  h += sectionEnd();
+  return h;
+}
+
+function renderClinicalImpression(d) {
+  let h = section('🔍', 'Clinical Impression');
+  h += row('Status', statusBadge(d.status));
+  h += row('Code', ccFull(d.code));
+  h += row('Description', escapeHtml(d.description || ''));
+  h += row('Subject', renderRef(d.subject));
+  h += row('Encounter', renderRef(d.encounter));
+  h += row('Effective', d.effectiveDateTime ? fmtDateTime(d.effectiveDateTime) : d.effectivePeriod ? period(d.effectivePeriod) : '');
+  h += row('Date', fmtDateTime(d.date));
+  h += row('Assessor', renderRef(d.assessor));
+  h += row('Previous', renderRef(d.previous));
+  (d.problem || []).forEach((p) => h += row('Problem', renderRef(p)));
+  if (d.investigation?.length) {
+    h += sub('🔬 Investigation');
+    d.investigation.forEach((i) => {
+      h += row('Code', ccFull(i.code));
+      (i.item || []).forEach((it) => h += row('Item', renderRef(it)));
+    });
+    h += subEnd();
+  }
+  (d.finding || []).forEach((f) => {
+    h += row('Finding', ccFull(f.itemCodeableConcept) || renderRef(f.itemReference));
+    h += row('Basis', escapeHtml(f.basis || ''));
+  });
+  h += row('Summary', escapeHtml(d.summary || ''));
+  (d.note || []).forEach((n) => h += row('Note', escapeHtml(n.text || '')));
+  h += sectionEnd();
+  return h;
+}
+
+function renderDetectedIssue(d) {
+  let h = section('⚠️', 'Detected Issue');
+  h += row('Status', statusBadge(d.status));
+  h += row('Code', ccFull(d.code));
+  h += row('Severity', d.severity ? statusBadge(d.severity, d.severity === 'high' ? 'error' : 'warning') : '');
+  h += row('Patient', renderRef(d.patient));
+  h += row('Identified', d.identifiedDateTime ? fmtDateTime(d.identifiedDateTime) : d.identifiedPeriod ? period(d.identifiedPeriod) : '');
+  h += row('Author', renderRef(d.author));
+  (d.implicated || []).forEach((i) => h += row('Implicated', renderRef(i)));
+  h += row('Detail', escapeHtml(d.detail || ''));
+  h += row('Reference', escapeHtml(d.reference || ''));
+  if (d.mitigation?.length) {
+    h += sub('✅ Mitigation');
+    d.mitigation.forEach((m) => {
+      h += row('Action', ccFull(m.action));
+      h += row('Date', fmtDateTime(m.date));
+      h += row('Author', renderRef(m.author));
+    });
+    h += subEnd();
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderAdverseEvent(d) {
+  let h = section('⛔', 'Adverse Event');
+  h += row('Actuality', statusBadge(d.actuality, d.actuality === 'actual' ? 'error' : 'warning'));
+  (d.category || []).forEach((c) => h += row('Category', ccFull(c)));
+  h += row('Event', ccFull(d.event));
+  h += row('Subject', renderRef(d.subject));
+  h += row('Encounter', renderRef(d.encounter));
+  h += row('Date', fmtDateTime(d.date));
+  h += row('Detected', fmtDateTime(d.detected));
+  h += row('Recorded Date', fmtDateTime(d.recordedDate));
+  h += row('Recorder', renderRef(d.recorder));
+  h += row('Seriousness', ccFull(d.seriousness));
+  h += row('Severity', ccFull(d.severity));
+  h += row('Outcome', ccFull(d.outcome));
+  (d.resultingCondition || []).forEach((c) => h += row('Resulting Condition', renderRef(c)));
+  h += row('Location', renderRef(d.location));
+  if (d.suspectEntity?.length) {
+    h += sub('🔍 Suspect Entity');
+    d.suspectEntity.forEach((s) => {
+      h += row('Instance', renderRef(s.instance));
+    });
+    h += subEnd();
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderFlag(d) {
+  let h = section('🚩', 'Flag');
+  h += row('Status', statusBadge(d.status));
+  (d.category || []).forEach((c) => h += row('Category', ccFull(c)));
+  h += row('Code', ccFull(d.code));
+  h += row('Subject', renderRef(d.subject));
+  h += row('Period', d.period ? period(d.period) : '');
+  h += row('Encounter', renderRef(d.encounter));
+  h += row('Author', renderRef(d.author));
+  h += sectionEnd();
+  return h;
+}
+
+function renderTask(d) {
+  let h = section('✏️', 'Task');
+  h += row('Status', statusBadge(d.status));
+  h += row('Status Reason', ccFull(d.statusReason));
+  h += row('Business Status', ccFull(d.businessStatus));
+  h += row('Intent', statusBadge(d.intent, 'info'));
+  h += row('Priority', d.priority ? statusBadge(d.priority) : '');
+  h += row('Code', ccFull(d.code));
+  h += row('Description', escapeHtml(d.description || ''));
+  h += row('Focus', renderRef(d.focus));
+  h += row('For', renderRef(d.for));
+  h += row('Encounter', renderRef(d.encounter));
+  h += row('Execution Period', d.executionPeriod ? period(d.executionPeriod) : '');
+  h += row('Authored On', fmtDateTime(d.authoredOn));
+  h += row('Last Modified', fmtDateTime(d.lastModified));
+  h += row('Requester', renderRef(d.requester));
+  h += row('Owner', renderRef(d.owner));
+  h += row('Location', renderRef(d.location));
+  (d.reasonCode || []).forEach((c) => h += row('Reason', ccFull(c)));
+  (d.note || []).forEach((n) => h += row('Note', escapeHtml(n.text || '')));
+  h += sectionEnd();
+  return h;
+}
+
+function renderCommunication(d) {
+  let h = section('💬', 'Communication');
+  h += row('Status', statusBadge(d.status));
+  h += row('Status Reason', ccFull(d.statusReason));
+  (d.category || []).forEach((c) => h += row('Category', ccFull(c)));
+  h += row('Priority', d.priority ? statusBadge(d.priority) : '');
+  h += row('Subject', renderRef(d.subject));
+  h += row('Topic', ccFull(d.topic));
+  (d.about || []).forEach((a) => h += row('About', renderRef(a)));
+  h += row('Encounter', renderRef(d.encounter));
+  h += row('Sent', fmtDateTime(d.sent));
+  h += row('Received', fmtDateTime(d.received));
+  (d.recipient || []).forEach((r) => h += row('Recipient', renderRef(r)));
+  h += row('Sender', renderRef(d.sender));
+  (d.reasonCode || []).forEach((c) => h += row('Reason', ccFull(c)));
+  if (d.payload?.length) {
+    h += sub('📎 Payload');
+    d.payload.forEach((p, i) => {
+      if (p.contentString) h += row(`Content ${i + 1}`, escapeHtml(p.contentString));
+      if (p.contentAttachment) h += row(`Attachment ${i + 1}`, escapeHtml(p.contentAttachment.title || p.contentAttachment.contentType || 'Attachment'));
+      if (p.contentReference) h += row(`Reference ${i + 1}`, renderRef(p.contentReference));
+    });
+    h += subEnd();
+  }
+  (d.note || []).forEach((n) => h += row('Note', escapeHtml(n.text || '')));
+  h += sectionEnd();
+  return h;
+}
+
+function renderCommunicationRequest(d) {
+  let h = section('📨', 'Communication Request');
+  h += row('Status', statusBadge(d.status));
+  h += row('Status Reason', ccFull(d.statusReason));
+  (d.category || []).forEach((c) => h += row('Category', ccFull(c)));
+  h += row('Priority', d.priority ? statusBadge(d.priority) : '');
+  h += row('Do Not Perform', d.doNotPerform !== undefined ? String(d.doNotPerform) : '');
+  h += row('Subject', renderRef(d.subject));
+  (d.about || []).forEach((a) => h += row('About', renderRef(a)));
+  h += row('Encounter', renderRef(d.encounter));
+  h += row('Occurrence', d.occurrenceDateTime ? fmtDateTime(d.occurrenceDateTime) : d.occurrencePeriod ? period(d.occurrencePeriod) : '');
+  h += row('Authored On', fmtDateTime(d.authoredOn));
+  h += row('Requester', renderRef(d.requester));
+  (d.recipient || []).forEach((r) => h += row('Recipient', renderRef(r)));
+  h += row('Sender', renderRef(d.sender));
+  (d.reasonCode || []).forEach((c) => h += row('Reason', ccFull(c)));
+  (d.note || []).forEach((n) => h += row('Note', escapeHtml(n.text || '')));
+  h += sectionEnd();
+  return h;
+}
+
+function renderConsent(d) {
+  let h = section('📜', 'Consent');
+  h += row('Status', statusBadge(d.status));
+  h += row('Scope', ccFull(d.scope));
+  (d.category || []).forEach((c) => h += row('Category', ccFull(c)));
+  h += row('Patient', renderRef(d.patient));
+  h += row('Date Time', fmtDateTime(d.dateTime));
+  (d.performer || []).forEach((p) => h += row('Performer', renderRef(p)));
+  (d.organization || []).forEach((o) => h += row('Organization', renderRef(o)));
+  h += row('Source', renderRef(d.sourceAttachment) || renderRef(d.sourceReference));
+  h += row('Policy Rule', ccFull(d.policyRule));
+  if (d.provision) {
+    h += sub('📋 Provision');
+    h += row('Type', d.provision.type || '');
+    h += row('Period', d.provision.period ? period(d.provision.period) : '');
+    (d.provision.action || []).forEach((a) => h += row('Action', ccFull(a)));
+    h += subEnd();
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderProvenance(d) {
+  let h = section('🔏', 'Provenance');
+  (d.target || []).forEach((t) => h += row('Target', renderRef(t)));
+  h += row('Occurred', d.occurredDateTime ? fmtDateTime(d.occurredDateTime) : d.occurredPeriod ? period(d.occurredPeriod) : '');
+  h += row('Recorded', fmtDateTime(d.recorded));
+  (d.policy || []).forEach((p) => h += row('Policy', escapeHtml(p)));
+  h += row('Location', renderRef(d.location));
+  (d.reason || []).forEach((r) => h += row('Reason', ccFull(r)));
+  h += row('Activity', ccFull(d.activity));
+  if (d.agent?.length) {
+    h += sub('👤 Agents');
+    d.agent.forEach((a) => {
+      h += row('Type', ccFull(a.type));
+      (a.role || []).forEach((r) => h += row('Role', ccFull(r)));
+      h += row('Who', renderRef(a.who));
+      h += row('On Behalf Of', renderRef(a.onBehalfOf));
+    });
+    h += subEnd();
+  }
+  if (d.entity?.length) {
+    h += sub('📄 Entity');
+    d.entity.forEach((e) => {
+      h += row('Role', e.role || '');
+      h += row('What', renderRef(e.what));
+    });
+    h += subEnd();
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderAuditEvent(d) {
+  let h = section('📋', 'Audit Event');
+  h += row('Type', cc(d.type) || escapeHtml(d.type?.code || ''));
+  (d.subtype || []).forEach((s) => h += row('Subtype', cc(s) || escapeHtml(s.code || '')));
+  h += row('Action', d.action || '');
+  h += row('Period', d.period ? period(d.period) : '');
+  h += row('Recorded', fmtDateTime(d.recorded));
+  h += row('Outcome', d.outcome ? statusBadge(d.outcome, d.outcome === '0' ? 'success' : 'error') : '');
+  h += row('Outcome Desc', escapeHtml(d.outcomeDesc || ''));
+  (d.purposeOfEvent || []).forEach((p) => h += row('Purpose', ccFull(p)));
+  if (d.agent?.length) {
+    h += sub('👤 Agents');
+    d.agent.forEach((a) => {
+      (a.type || []).forEach ? (Array.isArray(a.type) ? a.type : [a.type]).forEach((t) => h += row('Type', ccFull(t))) : h += row('Type', ccFull(a.type));
+      (a.role || []).forEach((r) => h += row('Role', ccFull(r)));
+      h += row('Who', renderRef(a.who));
+      h += row('Alt ID', escapeHtml(a.altId || ''));
+      h += row('Name', escapeHtml(a.name || ''));
+      h += row('Requestor', a.requestor !== undefined ? String(a.requestor) : '');
+      h += row('Location', renderRef(a.location));
+    });
+    h += subEnd();
+  }
+  if (d.source) {
+    h += row('Source Site', escapeHtml(d.source.site || ''));
+    h += row('Source Observer', renderRef(d.source.observer));
+  }
+  if (d.entity?.length) {
+    h += sub('📄 Entity');
+    d.entity.forEach((e) => {
+      h += row('What', renderRef(e.what));
+      h += row('Type', cc(e.type) || '');
+      h += row('Role', cc(e.role) || '');
+      h += row('Name', escapeHtml(e.name || ''));
+      h += row('Description', escapeHtml(e.description || ''));
+    });
+    h += subEnd();
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderQuestionnaire(d) {
+  let h = section('❓', 'Questionnaire');
+  h += row('Status', statusBadge(d.status));
+  h += row('Title', escapeHtml(d.title || ''));
+  h += row('Description', escapeHtml(d.description || ''));
+  h += row('Purpose', escapeHtml(d.purpose || ''));
+  h += row('Date', fmtDateTime(d.date));
+  h += row('Publisher', escapeHtml(d.publisher || ''));
+  h += row('Version', escapeHtml(d.version || ''));
+  (d.subjectType || []).forEach((s) => h += row('Subject Type', escapeHtml(s)));
+  if (d.item?.length) {
+    h += sub('📋 Items');
+    renderQuestionnaireItems(d.item, 0).forEach(line => h += line);
+    h += subEnd();
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderQuestionnaireItems(items, depth) {
+  const lines = [];
+  const indent = '  '.repeat(depth);
+  (items || []).forEach((item, i) => {
+    lines.push(row(`${indent}${i + 1}. ${item.linkId}`, escapeHtml(item.text || '') + (item.type ? ` [${item.type}]` : '')));
+    if (item.item?.length) {
+      lines.push(...renderQuestionnaireItems(item.item, depth + 1));
+    }
+  });
+  return lines;
+}
+
+function renderQuestionnaireResponse(d) {
+  let h = section('📝', 'Questionnaire Response');
+  h += row('Status', statusBadge(d.status));
+  h += row('Questionnaire', escapeHtml(d.questionnaire || ''));
+  h += row('Subject', renderRef(d.subject));
+  h += row('Encounter', renderRef(d.encounter));
+  h += row('Authored', fmtDateTime(d.authored));
+  h += row('Author', renderRef(d.author));
+  h += row('Source', renderRef(d.source));
+  if (d.item?.length) {
+    h += sub('📋 Answers');
+    renderQRItems(d.item, 0).forEach(line => h += line);
+    h += subEnd();
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderQRItems(items, depth) {
+  const lines = [];
+  const indent = '  '.repeat(depth);
+  (items || []).forEach((item) => {
+    let answer = '';
+    if (item.answer?.length) {
+      answer = item.answer.map(a => {
+        if (a.valueString) return a.valueString;
+        if (a.valueInteger !== undefined) return String(a.valueInteger);
+        if (a.valueDecimal !== undefined) return String(a.valueDecimal);
+        if (a.valueBoolean !== undefined) return String(a.valueBoolean);
+        if (a.valueDate) return a.valueDate;
+        if (a.valueDateTime) return a.valueDateTime;
+        if (a.valueCoding) return cc(a.valueCoding) || a.valueCoding.code;
+        if (a.valueQuantity) return quantity(a.valueQuantity);
+        if (a.valueReference) return a.valueReference.reference || '';
+        return '';
+      }).join(', ');
+    }
+    lines.push(row(`${indent}${item.linkId}`, escapeHtml(answer || item.text || '')));
+    if (item.item?.length) {
+      lines.push(...renderQRItems(item.item, depth + 1));
+    }
+  });
+  return lines;
+}
+
+function renderList(d) {
+  let h = section('📋', 'List');
+  h += row('Status', statusBadge(d.status));
+  h += row('Mode', d.mode || '');
+  h += row('Title', escapeHtml(d.title || ''));
+  h += row('Code', ccFull(d.code));
+  h += row('Subject', renderRef(d.subject));
+  h += row('Encounter', renderRef(d.encounter));
+  h += row('Date', fmtDateTime(d.date));
+  h += row('Source', renderRef(d.source));
+  h += row('Ordered By', ccFull(d.orderedBy));
+  if (d.entry?.length) {
+    h += sub('📄 Entries');
+    d.entry.forEach((e, i) => {
+      h += row(`#${i + 1}`, renderRef(e.item) || '');
+      if (e.flag) h += row('Flag', ccFull(e.flag));
+      if (e.deleted) h += row('Deleted', statusBadge('Yes', 'error'));
+      if (e.date) h += row('Date', fmtDateTime(e.date));
+    });
+    h += subEnd();
+  }
+  h += row('Empty Reason', ccFull(d.emptyReason));
+  (d.note || []).forEach((n) => h += row('Note', escapeHtml(n.text || '')));
+  h += sectionEnd();
+  return h;
+}
+
+function renderOperationOutcome(d) {
+  let h = section('⚠️', 'Operation Outcome');
+  if (d.issue?.length) {
+    d.issue.forEach((issue, i) => {
+      const severityClass = issue.severity === 'error' || issue.severity === 'fatal' ? 'error' : issue.severity === 'warning' ? 'warning' : 'info';
+      h += row(`Issue ${i + 1}`, '');
+      h += row('Severity', statusBadge(issue.severity, severityClass));
+      h += row('Code', escapeHtml(issue.code || ''));
+      h += row('Details', ccFull(issue.details));
+      h += row('Diagnostics', escapeHtml(issue.diagnostics || ''));
+      (issue.location || []).forEach((l) => h += row('Location', escapeHtml(l)));
+      (issue.expression || []).forEach((e) => h += row('Expression', escapeHtml(e)));
+    });
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function renderBundle(d) {
+  let h = section('📦', 'Bundle');
+  h += row('Type', statusBadge(d.type, 'info'));
+  h += row('Total', d.total !== undefined ? String(d.total) : '');
+  h += row('Timestamp', fmtDateTime(d.timestamp));
+  if (d.link?.length) {
+    h += sub('🔗 Links');
+    d.link.forEach((l) => h += row(l.relation || 'Link', escapeHtml(l.url || '')));
+    h += subEnd();
+  }
+  if (d.entry?.length) {
+    h += sub('📄 Entries');
+    d.entry.slice(0, 20).forEach((e, i) => {
+      const res = e.resource;
+      if (res) {
+        h += row(`#${i + 1}`, `${res.resourceType || 'Unknown'}/${res.id || '?'}`);
+      } else {
+        h += row(`#${i + 1}`, e.fullUrl || 'No resource');
+      }
+    });
+    if (d.entry.length > 20) h += row('...', `${d.entry.length - 20} more entries`);
+    h += subEnd();
+  }
+  h += sectionEnd();
+  return h;
+}
+
+function formatBytesSimple(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 // ─── Generic fallback ───────────────────────────────────────────────────
