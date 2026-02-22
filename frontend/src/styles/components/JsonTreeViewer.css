@@ -1,0 +1,289 @@
+/* ===== JSON Tree Viewer ===== */
+.json-tree-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.json-tree-toolbar {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface-hover);
+  flex-shrink: 0;
+}
+
+.json-tree-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.json-tree-toolbar-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-subtle);
+}
+
+/* --- Base64 Data Download --- */
+.json-tree-base64 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.json-tree-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border: 1px solid var(--accent-muted);
+  border-radius: var(--radius-sm);
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.json-tree-download-btn:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.json-tree-base64-size {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.json-tree {
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 16px;
+  background: var(--json-bg);
+  color: var(--json-text);
+  overflow: auto;
+  flex: 1;
+}
+
+.json-tree-node {
+  position: relative;
+}
+
+.json-tree-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0;
+}
+
+.json-tree-primitive {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0;
+  padding-left: 20px;
+}
+
+.json-tree-children {
+  padding-left: 20px;
+  border-left: 1px dashed var(--border);
+  margin-left: 6px;
+}
+
+.json-tree-child {
+  display: flex;
+  align-items: flex-start;
+}
+
+.json-tree-close-bracket {
+  padding-left: 0;
+}
+
+/* Toggle button */
+.json-tree-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.json-tree-toggle:hover {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.json-tree-toggle svg {
+  transition: transform var(--transition-fast);
+}
+
+.json-tree-toggle.expanded svg {
+  transform: rotate(90deg);
+}
+
+.json-tree-toggle.collapsed svg {
+  transform: rotate(0deg);
+}
+
+/* Syntax colors */
+.json-tree-key {
+  color: #93c5fd;
+}
+
+.json-tree-colon {
+  color: var(--text-muted);
+}
+
+.json-tree-string {
+  color: #86efac;
+}
+
+.json-tree-number {
+  color: #fcd34d;
+}
+
+.json-tree-boolean {
+  color: #f9a8d4;
+}
+
+.json-tree-null {
+  color: #f87171;
+  font-style: italic;
+}
+
+.json-tree-bracket {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.json-tree-comma {
+  color: var(--text-muted);
+}
+
+.json-tree-preview {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-style: italic;
+  margin: 0 4px;
+  padding: 1px 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+/* Reference button */
+.json-tree-ref-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: #60a5fa;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+  transition: all var(--transition-fast);
+}
+
+.json-tree-ref-btn:hover {
+  color: #93c5fd;
+  text-decoration-style: solid;
+  background: rgba(96, 165, 250, 0.1);
+  border-radius: 2px;
+}
+
+/* URL link */
+.json-tree-url {
+  color: #60a5fa;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.json-tree-url:hover {
+  color: #93c5fd;
+  text-decoration: underline;
+}
+
+/* Light theme adjustments */
+[data-theme="light"] .json-tree {
+  background: #1e293b;
+}
+
+[data-theme="light"] .json-tree-key {
+  color: #3b82f6;
+}
+
+[data-theme="light"] .json-tree-string {
+  color: #22c55e;
+}
+
+[data-theme="light"] .json-tree-number {
+  color: #f59e0b;
+}
+
+[data-theme="light"] .json-tree-boolean {
+  color: #ec4899;
+}
+
+[data-theme="light"] .json-tree-children {
+  border-left-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Expand/Collapse All buttons */
+.json-tree-toolbar {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface-hover);
+}
+
+.json-tree-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.json-tree-toolbar-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-subtle);
+}
+

@@ -1,0 +1,167 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-test-upload",
+        "meta": {
+          "profile": ["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Patient"]
+        },
+        "name": [
+          {
+            "use": "official",
+            "text": "Rajesh Kumar",
+            "family": "Kumar",
+            "given": ["Rajesh"]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1985-06-15",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+91-9876543210"
+          },
+          {
+            "system": "email",
+            "value": "rajesh.kumar@example.com"
+          }
+        ],
+        "address": [
+          {
+            "use": "home",
+            "line": ["123 MG Road"],
+            "city": "Bangalore",
+            "state": "Karnataka",
+            "postalCode": "560001",
+            "country": "IN"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "practitioner-test-upload",
+        "meta": {
+          "profile": ["https://nrces.in/ndhm/fhir/r4/StructureDefinition/Practitioner"]
+        },
+        "name": [
+          {
+            "use": "official",
+            "text": "Dr. Priya Sharma",
+            "family": "Sharma",
+            "given": ["Priya"],
+            "prefix": ["Dr."]
+          }
+        ],
+        "gender": "female",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+91-9123456789"
+          }
+        ],
+        "qualification": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0360",
+                  "code": "MD",
+                  "display": "Doctor of Medicine"
+                }
+              ],
+              "text": "MBBS, MD (General Medicine)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "condition-test-upload",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active",
+              "display": "Active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed",
+              "display": "Confirmed"
+            }
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "44054006",
+              "display": "Type 2 diabetes mellitus"
+            }
+          ],
+          "text": "Type 2 Diabetes Mellitus"
+        },
+        "onsetDateTime": "2020-03-15",
+        "recordedDate": "2020-03-15"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance",
+        "id": "allergy-test-upload",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+              "code": "active",
+              "display": "Active"
+            }
+          ]
+        },
+        "type": "allergy",
+        "category": ["medication"],
+        "criticality": "high",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "91936005",
+              "display": "Allergy to penicillin"
+            }
+          ],
+          "text": "Penicillin Allergy"
+        },
+        "recordedDate": "2020-01-10",
+        "reaction": [
+          {
+            "manifestation": [
+              {
+                "coding": [
+                  {
+                    "system": "http://snomed.info/sct",
+                    "code": "247472004",
+                    "display": "Hives"
+                  }
+                ],
+                "text": "Skin rash and hives"
+              }
+            ],
+            "severity": "moderate"
+          }
+        ]
+      }
+    }
+  ]
+}
+

@@ -1,0 +1,50 @@
+{
+  "resourceType": "DocumentReference",
+  "id": "document-with-attachment",
+  "status": "current",
+  "type": {
+    "coding": [
+      {
+        "system": "http://loinc.org",
+        "code": "34117-2",
+        "display": "History and physical note"
+      }
+    ],
+    "text": "Clinical Note"
+  },
+  "subject": {
+    "reference": "Patient/patient-001",
+    "display": "Alice Smith"
+  },
+  "date": "2024-02-20T10:30:00Z",
+  "author": [
+    {
+      "reference": "Practitioner/practitioner-001",
+      "display": "Dr. Robert Johnson"
+    }
+  ],
+  "description": "Sample document with embedded image attachment",
+  "content": [
+    {
+      "attachment": {
+        "contentType": "image/png",
+        "title": "Sample Medical Image",
+        "creation": "2024-02-20T10:30:00Z",
+        "data": "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAhGVYSWZNTQAqAAAACAAFARIAAwAAAAEAAQAAARoABQAAAAEAAABKARsABQAAAAEAAABSASgAAwAAAAEAAgAAh2kABAAAAAEAAABaAAAAAAAAAEgAAAABAAAASAAAAAEAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAZKADAAQAAAABAAAAZAAAAAAzFdrnAAAACXBIWXMAAAsTAAALEwEAmpwYAAABWWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNi4wLjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgoZXuEHAAAHiklEQVR4Ae2dB5LjOAyG5Zzjzu//cm7a3X6AIVqWJIIYUpLV/VW1FQhI8CMoSrLkngL/SwJ/FfI6E+DbwB8p4FNw+OQ2n6Xv6JK+CgFfgd8l/CEEH1NeSe9CYf8T6y0gkPeLJPBbBR5k/kvfUQx9kOJHW/dH4Fta0icJf50LPMzMXBZCDhJIaYqn9V+CPyLwRxj41ow8EfwRIT4xhKQv0V8l+KuEUCXdBcLPsneR0hF9VsKnVHqT/h8I4nspDPCjjD8k+KMYviuGfojBH2nwPwyEnyLo9xn8TKNnMUJlVtOHCfwlBn6Xg98l/xaG/yMM/4bA17EPEvgzDf4qh94xhO9i+K3shxj8VoI/ZOCnJPihCf6JYfhNAh8S/YCBv5LwTwT+K4I/M/D3dJefdPinCPxLRh9C8Dgh/hqK/xaDH2JtIviXGPomBN/E8JtY3yrwpxj+DIFvkvhTBt/I6Mcw/EOM/hDDH2P4VoZvQvCtjN/E4Js4+CkEv0viVwl+KPo+Bn+L4bfyr7L+FIJv5d+Vvw2D78Tghwx+K+tvYfjWfPgnAt/K35V/a4L/ROBbGXwr+yMM34rffSn7EIJv5d8l8K38WxL8Ef5WBn8L/6aEb+XfxPCtDH6L4FsZ/FYGv5XBb2XwWxn8VgbfyuDHOPhW/k0K38q+i8G3sg8x+Fb2IYS/lX8Tw7fy72L4rfxbEn4r/yYGv5V/E4Nv5d/K4Fv5d+Vvw+C7OPguBN/Kv0vhW9lHGfxW9k0MvpV9F8O38m9i+Fb+TQy+lb8Tw2/l32TwrfybGL6Vf1fCt7JvYvCt7JsYfCv7Xwi+lX0IwW9l34TgW9mHJPhW9k0K38q+C8G38u9i+Fb+PoRvZT/E4FvZ+xh8K/tQAt/Kf4jBt/KPMfhW9qMEfiv/LgbfyuDbOPhW/lX52xB4E4dvY+BNHH4rhz8i8G0MvAmDb+V/hMG3ceA2Br6N4U8x+DYGvovhtzH8Jg6+jeE3cfhW/j0G38bB2xh8E4dv4+C7GH4bA29j8G0cvpXBt3H4bQy8jYPvYvhtDL6NwTdx8G0MfIiDb2PgbRy+lf8IgW9j8E0cvI2Btzb4XQy8jcG3cfA2Bt7G4XdxGNbG4NsYfBuHb2PgbRy+jYO3NvguBt7awLdx8NYO38bg2xh4awdv4+BtHIa1g+/i4K0dvLXBt3b4NgbfxuFbO/xugx9t4G0c+G4D38bAd/HPcxu8tYPvYuC7OPhuA97awHcb+G6D323guzh4awPfbcDbGHgbh29t8Ps4cBuHv9vgbQy8tYHvNvA2Bt7G4XcbeGsH38Xh73bgNga+24C3ceDdBn63gW/j4K0NfLeBtzHw3Qa+20DbGPg2Dn63Ae/i4LsNeGsDn+3gbQy+24DvNuDbOHxrh99twG0cvLUD38bg2xh4awff2sBbO/guDrzb4HcbcBsDn+3gbRx4t4HPdvDdBtzGwGc78G4D323guw14G4ffbcC7DXi3g+824N0GvNuBZzt4G4Pvdvg2Bn5E4NsY+BEB38bg2xj8boPfbeC7Owi82+B3G/huA9/t4K0NfLfB73b43Q7e2sB3G/xuB29t8LsNfLeBt3H43Qa+28B3O/huA9/twLsNeLeD73bw3Q6+28F3O/huB9/t8Lsd/IiA73b43Q6+28F3O/huB9/t8Lsd/IjA73bw3Q4/20G8i8PPNvDdBr/bwHc7+G4H3+3wux18t4Pvdvi9DfjI4Hcb+G6H3+3wux18t4Pvdvi9DXy3g+82+N0Ov9vBdzv4boff7eC7HXy3w+928N0OvtrBjwx8tYPvdvDVDr7bwVc7+G6HX+3gux18tcPvdvDVDr7awXc7/GoH3+3gqx18t8OvdvDdDr7awXc7/G4DPyrgux1+twPvdvDdDr/bwHc78G6H320A3u3guw18t8PvNvDdDr7bwXcbgHc7+G6D3+3wuw18t4PvdvDdBuDdDr7bwGc7/G6H3+3gux18t4PvNgDvdvDdBj7bwXc7/G4D3+3gux18twF4t4PvNvDZDr7b4Hcb+G4H3+3guw3Aux18t4HPdvDdDr/bwHc7+G4H320A3u3guw18t8PvNvDdDr7bwXcbgHc7+G4D323wuw18t4PvdvDdBuDdDr7bwHcb/G6D3+3gux18twF4t4PvNvDdBr/b4Hcb+G4H3+3guw3Aux18t4HvNvjdBr7bwXc7+G4D8G4H323guw1+t4HvdvDdDr7bALzbwXcb+G6D323wuw18t4PvNgDvdvDdBr7b4Hcb/G4D3+3guw3Aux18t4HvNvjdBr7bwXc7+G4D8G4H323guw1+t8HvNvDdDr7bALzbwXcb+G6D3+3wuw18t4PvNgDvdvDdBr7b4Hcb/G4D3+3guw3Aux18t4HvNvjdBr/bwHc7+G4D8G4H323guw1+t8HvNvDdDr7bALzbwXcbgHc7/G6D3+3gux18twF4t4PvNgDvdvjdBr/bwXc7+G4H320A3u3guw3Aux18t8PvNvDdDr7bALzbwXcbgHc7+G6H3+3gux18twF4t4PvNgDvdvDdDr/bwHc7+G4D8G4H320A3u3gux1+t4PvdvDdBuDdDr7bALzbwXc7/G6H3+3guw3Aux18twF4t4PvdvjdDr/bwXcbgHc7+G4D8G4H3+3wux1+t4PvNgDvdvDdBuDdDr7b4Xc7/G4H320A3u3guw3Aux18t8PvdvjdDr7bALzbwXcbgHc7+G6H3+3wux18twF4t4PvNgDvdvDdDr/b4Xc7+G4D8G4H320A3u3gux1+t8PvdvDdBuDdDr7bALzbwXc7/G6H3+3guw3Aux18twF4t4Pvdvje"
+      },
+      "format": {
+        "system": "http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem",
+        "code": "urn:ihe:pcc:xphr:2007",
+        "display": "Personal Health Records"
+      }
+    },
+    {
+      "attachment": {
+        "contentType": "text/plain",
+        "title": "Clinical Notes",
+        "data": "UGF0aWVudCBwcmVzZW50ZWQgd2l0aCBtaWxkIGhlYWRhY2hlIGFuZCBmYXRpZ3VlLgpWaXRhbHM6IEJQIDEyMC84MCwgSFIgNzIsIFRlbXAgOTguNkYKQXNzZXNzbWVudDogTGlrZWx5IHZpcmFsIGluZmVjdGlvbgpQbGFuOiBSZXN0LCBmbHVpZHMsIGZvbGxvdy11cCBpbiA3IGRheXMgaWYgc3ltcHRvbXMgcGVyc2lzdA=="
+      }
+    }
+  ]
+}
+

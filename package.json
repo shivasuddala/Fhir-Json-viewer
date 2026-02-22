@@ -1,0 +1,14 @@
+{
+  "name": "hcx-fhir-util",
+  "version": "2.0.0",
+  "description": "FHIR viewer utilities with a React frontend and Java backend.",
+  "license": "ISC",
+  "private": true,
+  "scripts": {
+    "start": "npm --prefix frontend start",
+    "build": "npm --prefix frontend run build",
+    "dev": "npm --prefix frontend run dev",
+    "frontend": "npm --prefix frontend run frontend",
+    "test": "npm --prefix frontend run test"
+  }
+}

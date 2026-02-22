@@ -1,0 +1,54 @@
+{
+  "resourceType": "Medication",
+  "id": "medication-001",
+  "code": {
+    "coding": [
+      {
+        "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+        "code": "855334",
+        "display": "Metformin Hydrochloride 500 MG Oral Tablet"
+      }
+    ],
+    "text": "Metformin 500mg Tablet"
+  },
+  "manufacturer": {
+    "reference": "Organization/pharm-org"
+  },
+  "form": {
+    "coding": [
+      {
+        "system": "http://snomed.info/sct",
+        "code": "385055001",
+        "display": "Tablet"
+      }
+    ],
+    "text": "Oral Tablet"
+  },
+  "ingredient": [
+    {
+      "item": {
+        "concept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "372567009",
+              "display": "Metformin"
+            }
+          ],
+          "text": "Metformin"
+        }
+      },
+      "strength": {
+        "numerator": {
+          "value": 500,
+          "unit": "mg"
+        },
+        "denominator": {
+          "value": 1,
+          "unit": "tablet"
+        }
+      }
+    }
+  ]
+}
+

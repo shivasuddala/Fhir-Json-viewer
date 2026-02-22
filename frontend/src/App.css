@@ -1,0 +1,59 @@
+/* ===== Drag Overlay ===== */
+.drag-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(99, 102, 241, 0.15);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px dashed var(--accent);
+  animation: dragPulse 1.5s ease-in-out infinite;
+}
+
+.drag-overlay-content {
+  text-align: center;
+  color: var(--accent);
+}
+
+.drag-icon {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 16px;
+  animation: bounce 1s infinite;
+}
+
+.drag-overlay h3 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.drag-overlay p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+@keyframes dragPulse {
+  0%, 100% { background: rgba(99, 102, 241, 0.1); }
+  50% { background: rgba(99, 102, 241, 0.2); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ===== Notification Stack ===== */
+.notification-stack {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 400px;
+}
+

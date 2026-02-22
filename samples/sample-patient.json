@@ -1,0 +1,10 @@
+{
+  "resourceType": "Patient",
+  "id": "example",
+  "meta": {"profile": ["http://hl7.org/fhir/StructureDefinition/patient"]},
+  "text": {"status": "generated", "div": "<div>Example</div>"},
+  "name": [{"use": "official", "family": "Doe", "given": ["John"]}],
+  "gender": "male",
+  "birthDate": "1974-12-25"
+}
+
