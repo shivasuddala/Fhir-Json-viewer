@@ -90,8 +90,12 @@ function JsonNode({ name, value, depth, onNavigateToRef, forceExpand }) {
   // Check if this is a URL
   const isUrl = typeof value === 'string' && (value.startsWith('http://') || value.startsWith('https://'));
 
-  // Check if this is base64 data (attachment)
-  const isBase64Data = name === 'data' && typeof value === 'string' && value.length > 100 && isLikelyBase64(value);
+  // Check if this is base64 data (attachment) or data URI
+  const isBase64Data = typeof value === 'string' && value.length > 100 && (
+    (name === 'data' && isLikelyBase64(value)) ||
+    isDataUri(value)
+  );
+  const dataUriInfo = isBase64Data && isDataUri(value) ? parseDataUri(value) : null;
 
   const handleRefClick = useCallback((e) => {
     e.preventDefault();
@@ -105,15 +109,27 @@ function JsonNode({ name, value, depth, onNavigateToRef, forceExpand }) {
   const handleBase64Download = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
-    // Try to get contentType from sibling
-    const blob = base64ToBlob(value, 'application/octet-stream');
+
+    let blob;
+    let filename = 'attachment';
+
+    if (dataUriInfo) {
+      // Data URI format: data:mime/type;base64,<data>
+      blob = base64ToBlob(dataUriInfo.data, dataUriInfo.mimeType);
+      const ext = getExtensionFromMime(dataUriInfo.mimeType);
+      filename = `attachment.${ext}`;
+    } else {
+      // Plain base64
+      blob = base64ToBlob(value, 'application/octet-stream');
+    }
+
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'attachment';
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
-  }, [value]);
+  }, [value, dataUriInfo]);
 
   // Render the key/name part
   const renderName = () => {
@@ -124,9 +140,14 @@ function JsonNode({ name, value, depth, onNavigateToRef, forceExpand }) {
   // Render primitive values
   const renderPrimitive = () => {
     if (type === 'string') {
-      // Base64 data - show truncated with download button
+      // Base64 data or data URI - show truncated with download button
       if (isBase64Data) {
-        const truncated = value.substring(0, 50) + '...';
+        const isImage = dataUriInfo?.mimeType?.startsWith('image/');
+        const truncated = dataUriInfo
+          ? `data:${dataUriInfo.mimeType};base64,...`
+          : value.substring(0, 50) + '...';
+        const size = dataUriInfo ? dataUriInfo.data.length * 0.75 : value.length * 0.75;
+
         return (
           <span className="json-tree-string json-tree-base64">
             "{truncated}"
@@ -137,7 +158,19 @@ function JsonNode({ name, value, depth, onNavigateToRef, forceExpand }) {
             >
               ⬇️ Download
             </button>
-            <span className="json-tree-base64-size">({formatBytes(value.length * 0.75)})</span>
+            {isImage && (
+              <button
+                className="json-tree-preview-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(value, '_blank');
+                }}
+                title="Preview image"
+              >
+                👁️ Preview
+              </button>
+            )}
+            <span className="json-tree-base64-size">({formatBytes(size)})</span>
           </span>
         );
       }
@@ -284,6 +317,44 @@ function isLikelyBase64(str) {
   if (!/^[A-Za-z0-9+/=]+$/.test(str)) return false;
   // Length should be multiple of 4
   return str.length % 4 === 0;
+}
+
+function isDataUri(str) {
+  // Check if string is a data URI (data:mime/type;base64,...)
+  return /^data:[^;]+;base64,/.test(str);
+}
+
+function parseDataUri(dataUri) {
+  // Parse data URI format: data:mime/type;base64,<data>
+  const match = dataUri.match(/^data:([^;]+);base64,(.+)$/);
+  if (match) {
+    return {
+      mimeType: match[1],
+      data: match[2]
+    };
+  }
+  return null;
+}
+
+function getExtensionFromMime(mimeType) {
+  const mimeToExt = {
+    'image/png': 'png',
+    'image/jpeg': 'jpg',
+    'image/jpg': 'jpg',
+    'image/gif': 'gif',
+    'image/webp': 'webp',
+    'image/svg+xml': 'svg',
+    'application/pdf': 'pdf',
+    'text/plain': 'txt',
+    'text/html': 'html',
+    'application/json': 'json',
+    'application/xml': 'xml',
+    'audio/mpeg': 'mp3',
+    'audio/wav': 'wav',
+    'video/mp4': 'mp4',
+    'video/webm': 'webm',
+  };
+  return mimeToExt[mimeType] || 'bin';
 }
 
 function base64ToBlob(base64, contentType = 'application/octet-stream') {

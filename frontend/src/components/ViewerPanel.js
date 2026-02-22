@@ -316,6 +316,7 @@ function getExtension(contentType) {
 
 /**
  * Extract all attachments from a FHIR resource
+ * Handles: FHIR Attachment objects, data URIs, and base64 strings
  */
 function extractAttachments(data, path = '') {
   const attachments = [];
@@ -328,7 +329,7 @@ function extractAttachments(data, path = '') {
       return;
     }
 
-    // Check if this is an Attachment object
+    // Check if this is an Attachment object (FHIR standard)
     if (node.contentType && (node.data || node.url)) {
       attachments.push({
         ...node,
@@ -336,9 +337,25 @@ function extractAttachments(data, path = '') {
       });
     }
 
-    // Continue walking
+    // Check for data URI strings in any field
     Object.entries(node).forEach(([key, value]) => {
-      walk(value, currentPath ? `${currentPath}.${key}` : key);
+      if (typeof value === 'string' && /^data:[^;]+;base64,/.test(value)) {
+        // Parse data URI
+        const match = value.match(/^data:([^;]+);base64,(.+)$/);
+        if (match) {
+          attachments.push({
+            contentType: match[1],
+            data: match[2],
+            title: `${key} (Data URI)`,
+            _path: currentPath ? `${currentPath}.${key}` : key,
+            _isDataUri: true
+          });
+        }
+      }
+      // Continue walking
+      if (typeof value === 'object' && value !== null) {
+        walk(value, currentPath ? `${currentPath}.${key}` : key);
+      }
     });
   }
 

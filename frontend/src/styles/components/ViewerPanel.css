@@ -604,3 +604,60 @@ kbd {
   color: var(--text-primary);
 }
 
+/* --- Collapsible Subsections --- */
+.collapsible-sub {
+  position: relative;
+}
+
+.collapsible-sub .collapse-toggle {
+  display: none;
+}
+
+.collapsible-sub .collapsible-header {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  transition: background 0.2s;
+}
+
+.collapsible-sub .collapsible-header:hover {
+  background: var(--bg-elevated);
+}
+
+.collapsible-sub .collapse-icon {
+  font-size: 10px;
+  transition: transform 0.2s;
+  color: var(--text-muted);
+}
+
+.collapsible-sub .item-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: normal;
+  margin-left: auto;
+}
+
+.collapsible-sub .collapsible-content {
+  max-height: 2000px;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out, opacity 0.2s;
+  opacity: 1;
+}
+
+/* Collapsed state */
+.collapsible-sub .collapse-toggle:not(:checked) ~ .collapsible-content {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.collapsible-sub .collapse-toggle:not(:checked) ~ .collapsible-header .collapse-icon {
+  transform: rotate(-90deg);
+}
+
