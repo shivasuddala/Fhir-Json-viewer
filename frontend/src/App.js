@@ -246,6 +246,18 @@ function App() {
     (refString) => {
       if (!refString) return;
 
+      // First, try to match by fullUrl (for URL references within bundles)
+      let idx = resources.findIndex((r) => r.fullUrl === refString);
+
+      if (idx !== -1) {
+        if (selectedIndex !== null) {
+          setNavStack((prev) => [...prev, selectedIndex]);
+        }
+        setSelectedIndex(idx);
+        showNotification(`Navigated to ${resources[idx].type}/${resources[idx].id}`, 'info');
+        return;
+      }
+
       // Handle different reference formats:
       // 1. "ResourceType/id" (e.g. "Patient/patient-001")
       // 2. Full URL (e.g. "http://example.com/Patient/123")
@@ -279,14 +291,21 @@ function App() {
         }
       }
 
-      // Search for the resource
-      const idx = resources.findIndex((r) => {
+      // Search for the resource by id
+      idx = resources.findIndex((r) => {
         // Match by id
         if (r.id === refId) {
           // If we have a type constraint, also check type
           return refType ? r.type === refType : true;
         }
-        // Also check full reference format "Type/id" against data
+        // Also match by fullUrl ending with the refId
+        if (r.fullUrl && r.fullUrl.endsWith('/' + refId)) {
+          return refType ? r.type === refType : true;
+        }
+        // Match urn:uuid references
+        if (r.fullUrl && r.fullUrl === `urn:uuid:${refId}`) {
+          return true;
+        }
         return false;
       });
 

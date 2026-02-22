@@ -11,7 +11,9 @@ export function parseJson(json, source = null) {
 
   if (json.resourceType === 'Bundle' && json.entry) {
     json.entry.forEach((entry) => {
-      if (entry.resource) resources.push(createResource(entry.resource, sourceInfo));
+      if (entry.resource) {
+        resources.push(createResource(entry.resource, sourceInfo, entry.fullUrl));
+      }
     });
   } else if (json.resourceType) {
     resources.push(createResource(json, sourceInfo));
@@ -48,10 +50,11 @@ function createGenericJsonResource(obj, source) {
   };
 }
 
-function createResource(obj, source) {
+function createResource(obj, source, fullUrl = null) {
   return {
     type: obj.resourceType || 'Unknown',
     id: obj.id || '(no id)',
+    fullUrl: fullUrl || null, // Store fullUrl for URL-based reference matching
     data: obj,
     source: source, // { name: 'filename.json', id: 'unique-id' }
     // lazy – computed once on first access
@@ -1008,39 +1011,179 @@ function renderComposition(d) {
 
 function renderClaim(d) {
   let h = section('💰', 'Claim');
+
+  // Basic Info
+  h += row('ID', escapeHtml(d.id || ''));
   h += row('Status', statusBadge(d.status));
   h += row('Type', ccFull(d.type));
   h += row('Sub-Type', ccFull(d.subType));
   h += row('Use', statusBadge(d.use, 'info'));
+  h += row('Created', fmtDateTime(d.created));
+  h += row('Billable Period', d.billablePeriod ? period(d.billablePeriod) : '');
+  h += row('Priority', ccFull(d.priority));
+
+  // Key References
   h += row('Patient', renderRef(d.patient));
   h += row('Provider', renderRef(d.provider));
   h += row('Insurer', renderRef(d.insurer));
-  h += row('Priority', ccFull(d.priority));
-  h += row('Created', fmtDate(d.created));
-  h += row('Billable Period', d.billablePeriod ? period(d.billablePeriod) : '');
-  if (d.total) h += row('Total', quantity(d.total));
+  h += row('Facility', renderRef(d.facility));
+  h += row('Prescription', renderRef(d.prescription));
+  h += row('Original Prescription', renderRef(d.originalPrescription));
+  h += row('Referral', renderRef(d.referral));
+  h += row('Enterer', renderRef(d.enterer));
 
+  // Payee
+  if (d.payee) {
+    h += sub('💳 Payee');
+    h += row('Type', ccFull(d.payee.type));
+    h += row('Party', renderRef(d.payee.party));
+    h += subEnd();
+  }
+
+  // Related Claims
+  if (d.related?.length) {
+    h += sub('🔗 Related Claims');
+    d.related.forEach((rel, i) => {
+      h += row(`#${i + 1}`, renderRef(rel.claim));
+      h += row('Relationship', ccFull(rel.relationship));
+      if (rel.reference) h += row('Reference', escapeHtml(rel.reference.value || ''));
+    });
+    h += subEnd();
+  }
+
+  // Care Team
+  if (d.careTeam?.length) {
+    h += sub('👥 Care Team');
+    d.careTeam.forEach((ct) => {
+      h += row(`#${ct.sequence || '?'}`, renderRef(ct.provider));
+      h += row('Role', ccFull(ct.role));
+      h += row('Qualification', ccFull(ct.qualification));
+      if (ct.responsible !== undefined) h += row('Responsible', statusBadge(ct.responsible ? 'Yes' : 'No', ct.responsible ? 'success' : 'info'));
+    });
+    h += subEnd();
+  }
+
+  // Supporting Info
+  if (d.supportingInfo?.length) {
+    h += sub('📎 Supporting Information');
+    d.supportingInfo.forEach((info) => {
+      const seqLabel = `#${info.sequence || '?'}`;
+      h += row(seqLabel, ccFull(info.category));
+      if (info.code) h += row('Code', ccFull(info.code));
+      if (info.timingDate) h += row('Date', fmtDate(info.timingDate));
+      if (info.timingPeriod) h += row('Period', period(info.timingPeriod));
+      if (info.valueString) h += row('Value', escapeHtml(info.valueString));
+      if (info.valueBoolean !== undefined) h += row('Value', statusBadge(info.valueBoolean ? 'Yes' : 'No'));
+      if (info.valueQuantity) h += row('Quantity', quantity(info.valueQuantity));
+      if (info.valueAttachment) {
+        h += row('Attachment', escapeHtml(info.valueAttachment.title || info.valueAttachment.contentType || 'Attached'));
+      }
+      if (info.valueReference) h += row('Reference', renderRef(info.valueReference));
+      if (info.reason) h += row('Reason', ccFull(info.reason));
+    });
+    h += subEnd();
+  }
+
+  // Diagnosis
   if (d.diagnosis?.length) {
     h += sub('🩺 Diagnoses');
     d.diagnosis.forEach((diag) => {
       h += row(`#${diag.sequence || '?'}`, ccFull(diag.diagnosisCodeableConcept) || renderRef(diag.diagnosisReference));
       (diag.type || []).forEach((t) => h += row('Type', ccFull(t)));
+      if (diag.onAdmission) h += row('On Admission', ccFull(diag.onAdmission));
+      if (diag.packageCode) h += row('Package', ccFull(diag.packageCode));
     });
     h += subEnd();
   }
 
+  // Procedures
+  if (d.procedure?.length) {
+    h += sub('🏥 Procedures');
+    d.procedure.forEach((proc) => {
+      h += row(`#${proc.sequence || '?'}`, ccFull(proc.procedureCodeableConcept) || renderRef(proc.procedureReference));
+      (proc.type || []).forEach((t) => h += row('Type', ccFull(t)));
+      if (proc.date) h += row('Date', fmtDateTime(proc.date));
+      (proc.udi || []).forEach((u) => h += row('UDI', renderRef(u)));
+    });
+    h += subEnd();
+  }
+
+  // Insurance
+  if (d.insurance?.length) {
+    h += sub('🛡️ Insurance');
+    d.insurance.forEach((ins, i) => {
+      h += row(`#${ins.sequence || i + 1}`, renderRef(ins.coverage));
+      h += row('Focal', ins.focal !== undefined ? statusBadge(ins.focal ? 'Yes' : 'No', ins.focal ? 'success' : 'info') : '');
+      if (ins.identifier) h += row('Identifier', escapeHtml(ins.identifier.value || ''));
+      h += row('Business Arrangement', escapeHtml(ins.businessArrangement || ''));
+      h += row('Claim Response', renderRef(ins.claimResponse));
+      (ins.preAuthRef || []).forEach((ref) => h += row('Pre-Auth Ref', escapeHtml(ref)));
+    });
+    h += subEnd();
+  }
+
+  // Accident
+  if (d.accident) {
+    h += sub('⚠️ Accident');
+    h += row('Date', fmtDate(d.accident.date));
+    h += row('Type', ccFull(d.accident.type));
+    if (d.accident.locationAddress) h += renderAddress(d.accident.locationAddress);
+    if (d.accident.locationReference) h += row('Location', renderRef(d.accident.locationReference));
+    h += subEnd();
+  }
+
+  // Items
   if (d.item?.length) {
     h += sub('📦 Items');
     d.item.forEach((item) => {
       h += row(`#${item.sequence || '?'}`, ccFull(item.productOrService));
+      (item.careTeamSequence || []).forEach((seq) => h += row('Care Team Ref', `#${seq}`));
+      (item.diagnosisSequence || []).forEach((seq) => h += row('Diagnosis Ref', `#${seq}`));
+      (item.procedureSequence || []).forEach((seq) => h += row('Procedure Ref', `#${seq}`));
+      (item.informationSequence || []).forEach((seq) => h += row('Info Ref', `#${seq}`));
+      if (item.revenue) h += row('Revenue', ccFull(item.revenue));
+      if (item.category) h += row('Category', ccFull(item.category));
+      (item.modifier || []).forEach((m) => h += row('Modifier', ccFull(m)));
+      (item.programCode || []).forEach((p) => h += row('Program Code', ccFull(p)));
+      if (item.servicedDate) h += row('Service Date', fmtDate(item.servicedDate));
+      if (item.servicedPeriod) h += row('Service Period', period(item.servicedPeriod));
+      if (item.locationCodeableConcept) h += row('Location', ccFull(item.locationCodeableConcept));
+      if (item.locationAddress) h += renderAddress(item.locationAddress);
+      if (item.locationReference) h += row('Location', renderRef(item.locationReference));
       if (item.quantity) h += row('Quantity', quantity(item.quantity));
       if (item.unitPrice) h += row('Unit Price', quantity(item.unitPrice));
+      if (item.factor) h += row('Factor', String(item.factor));
       if (item.net) h += row('Net', quantity(item.net));
+      (item.udi || []).forEach((u) => h += row('UDI', renderRef(u)));
+      if (item.bodySite) h += row('Body Site', ccFull(item.bodySite));
+      (item.subSite || []).forEach((s) => h += row('Sub-Site', ccFull(s)));
+      (item.encounter || []).forEach((e) => h += row('Encounter', renderRef(e)));
+
+      // Detail items
+      if (item.detail?.length) {
+        item.detail.forEach((det) => {
+          h += row(`  └ Detail #${det.sequence || '?'}`, ccFull(det.productOrService));
+          if (det.quantity) h += row('    Quantity', quantity(det.quantity));
+          if (det.unitPrice) h += row('    Unit Price', quantity(det.unitPrice));
+          if (det.net) h += row('    Net', quantity(det.net));
+
+          // Sub-detail items
+          if (det.subDetail?.length) {
+            det.subDetail.forEach((sub) => {
+              h += row(`      └ Sub #${sub.sequence || '?'}`, ccFull(sub.productOrService));
+              if (sub.quantity) h += row('        Quantity', quantity(sub.quantity));
+              if (sub.net) h += row('        Net', quantity(sub.net));
+            });
+          }
+        });
+      }
     });
     h += subEnd();
   }
 
-  (d.insurance || []).forEach((ins) => { h += row('Insurance', renderRef(ins.coverage)); h += row('Focal', ins.focal !== undefined ? String(ins.focal) : ''); });
+  // Total
+  if (d.total) h += row('Total', quantity(d.total));
+
   h += sectionEnd();
   return h;
 }
@@ -1452,31 +1595,139 @@ function renderBinary(d) {
 
 function renderClaimResponse(d) {
   let h = section('🧾', 'Claim Response');
+
+  // Basic Info
+  h += row('ID', escapeHtml(d.id || ''));
   h += row('Status', statusBadge(d.status));
   h += row('Type', ccFull(d.type));
+  h += row('Sub-Type', ccFull(d.subType));
   h += row('Use', statusBadge(d.use, 'info'));
-  h += row('Patient', renderRef(d.patient));
   h += row('Created', fmtDateTime(d.created));
+  h += row('Outcome', statusBadge(d.outcome));
+  h += row('Disposition', escapeHtml(d.disposition || ''));
+
+  // Key References
+  h += row('Patient', renderRef(d.patient));
   h += row('Insurer', renderRef(d.insurer));
   h += row('Requestor', renderRef(d.requestor));
   h += row('Request', renderRef(d.request));
-  h += row('Outcome', statusBadge(d.outcome));
-  h += row('Disposition', escapeHtml(d.disposition || ''));
   h += row('Pre Auth Ref', escapeHtml(d.preAuthRef || ''));
-  h += row('Payee Type', ccFull(d.payeeType));
-  if (d.payment) {
-    h += sub('💳 Payment');
-    h += row('Type', ccFull(d.payment.type));
-    h += row('Adjustment', quantity(d.payment.adjustment));
-    h += row('Amount', quantity(d.payment.amount));
-    h += row('Date', fmtDate(d.payment.date));
+  h += row('Pre Auth Period', d.preAuthPeriod ? period(d.preAuthPeriod) : '');
+
+  // Payee
+  if (d.payeeType) h += row('Payee Type', ccFull(d.payeeType));
+
+  // Items
+  if (d.item?.length) {
+    h += sub('📦 Items');
+    d.item.forEach((item) => {
+      h += row(`#${item.itemSequence || '?'}`, '');
+      if (item.noteNumber?.length) h += row('Note #', item.noteNumber.join(', '));
+
+      // Adjudication
+      if (item.adjudication?.length) {
+        item.adjudication.forEach((adj) => {
+          const cat = ccFull(adj.category);
+          if (adj.amount) {
+            h += row(`  ${cat}`, quantity(adj.amount));
+          } else if (adj.value !== undefined) {
+            h += row(`  ${cat}`, String(adj.value));
+          } else if (adj.reason) {
+            h += row(`  ${cat}`, ccFull(adj.reason));
+          }
+        });
+      }
+
+      // Detail
+      if (item.detail?.length) {
+        item.detail.forEach((det) => {
+          h += row(`  └ Detail #${det.detailSequence || '?'}`, '');
+          if (det.adjudication?.length) {
+            det.adjudication.forEach((adj) => {
+              const cat = ccFull(adj.category);
+              if (adj.amount) h += row(`    ${cat}`, quantity(adj.amount));
+            });
+          }
+        });
+      }
+    });
     h += subEnd();
   }
+
+  // Add Items (for additional items requested)
+  if (d.addItem?.length) {
+    h += sub('➕ Added Items');
+    d.addItem.forEach((item, i) => {
+      h += row(`#${i + 1}`, ccFull(item.productOrService));
+      (item.itemSequence || []).forEach((seq) => h += row('Item Ref', `#${seq}`));
+      if (item.net) h += row('Net', quantity(item.net));
+    });
+    h += subEnd();
+  }
+
+  // Totals
   if (d.total?.length) {
     h += sub('💰 Totals');
     d.total.forEach((t) => h += row(ccFull(t.category), quantity(t.amount)));
     h += subEnd();
   }
+
+  // Payment
+  if (d.payment) {
+    h += sub('💳 Payment');
+    h += row('Type', ccFull(d.payment.type));
+    h += row('Adjustment', quantity(d.payment.adjustment));
+    h += row('Adjustment Reason', ccFull(d.payment.adjustmentReason));
+    h += row('Amount', quantity(d.payment.amount));
+    h += row('Date', fmtDate(d.payment.date));
+    if (d.payment.identifier) h += row('Identifier', escapeHtml(d.payment.identifier.value || ''));
+    h += subEnd();
+  }
+
+  // Fund Reserve
+  if (d.fundsReserve) h += row('Funds Reserve', ccFull(d.fundsReserve));
+
+  // Form
+  if (d.form) h += row('Form Code', ccFull(d.form));
+  if (d.formCode) h += row('Form Code', ccFull(d.formCode));
+
+  // Process Notes
+  if (d.processNote?.length) {
+    h += sub('📝 Process Notes');
+    d.processNote.forEach((note) => {
+      h += row(`#${note.number || '?'}`, escapeHtml(note.text || ''));
+      if (note.type) h += row('Type', statusBadge(note.type, 'info'));
+      if (note.language) h += row('Language', ccFull(note.language));
+    });
+    h += subEnd();
+  }
+
+  // Communication Request
+  (d.communicationRequest || []).forEach((c) => h += row('Communication', renderRef(c)));
+
+  // Insurance
+  if (d.insurance?.length) {
+    h += sub('🛡️ Insurance');
+    d.insurance.forEach((ins, i) => {
+      h += row(`#${ins.sequence || i + 1}`, renderRef(ins.coverage));
+      h += row('Focal', ins.focal !== undefined ? statusBadge(ins.focal ? 'Yes' : 'No', ins.focal ? 'success' : 'info') : '');
+      h += row('Business Arrangement', escapeHtml(ins.businessArrangement || ''));
+      h += row('Claim Response', renderRef(ins.claimResponse));
+    });
+    h += subEnd();
+  }
+
+  // Errors
+  if (d.error?.length) {
+    h += sub('⚠️ Errors');
+    d.error.forEach((err) => {
+      h += row(`Item #${err.itemSequence || '-'}`, ccFull(err.code));
+      if (err.detailSequence) h += row('Detail Seq', `#${err.detailSequence}`);
+      if (err.subDetailSequence) h += row('SubDetail Seq', `#${err.subDetailSequence}`);
+    });
+    h += subEnd();
+  }
+
   h += sectionEnd();
   return h;
 }
