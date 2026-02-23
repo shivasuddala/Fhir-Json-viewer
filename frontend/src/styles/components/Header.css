@@ -126,6 +126,26 @@
   border-color: rgba(239, 68, 68, 0.6);
 }
 
+.btn-header-validate {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.btn-header-validate:hover {
+  background: rgba(34, 197, 94, 0.4);
+  border-color: rgba(34, 197, 94, 0.6);
+}
+
+.btn-header-create {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.btn-header-create:hover {
+  background: rgba(99, 102, 241, 0.4);
+  border-color: rgba(99, 102, 241, 0.6);
+}
+
 .btn-theme-toggle {
   padding: 7px;
   width: 36px;

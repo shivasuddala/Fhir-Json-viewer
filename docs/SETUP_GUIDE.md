@@ -12,8 +12,8 @@
 ### 1. Clone & Install
 
 ```bash
-git clone <repository-url>
-cd hcx-fhir-util/frontend
+git clone https://github.com/shivasuddala/Fhir-Json-viewer.git
+cd Fhir-Json-viewer/frontend
 npm install
 ```
 

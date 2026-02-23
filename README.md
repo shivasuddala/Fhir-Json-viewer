@@ -1,6 +1,6 @@
 # 🏥 FHIR JSON Viewer
 
-A modern React-based viewer for HL7-FHIR R4 medical records and any JSON data with reference navigation, interactive JSON tree, inline attachments, and source file grouping. Supports **NRCES India** and **HL7 International** FHIR profiles, plus **generic JSON** viewing.
+A modern React-based viewer for HL7-FHIR R4 medical records and any JSON data with reference navigation, interactive JSON tree, inline attachments, FHIR validation, and source file grouping. Supports **NRCES India**, **NDHM**, **HL7 International** FHIR profiles, plus **generic JSON** viewing.
 
 ![React](https://img.shields.io/badge/React-19-blue) ![FHIR](https://img.shields.io/badge/FHIR-R4-green) ![NRCES](https://img.shields.io/badge/NRCES-India-orange) ![JSON](https://img.shields.io/badge/JSON-Viewer-purple) ![License](https://img.shields.io/badge/license-ISC-brightgreen)
 
@@ -18,17 +18,19 @@ A modern React-based viewer for HL7-FHIR R4 medical records and any JSON data wi
 | 📂 **Folder Upload** | Upload entire folders of JSON/text files at once |
 | 📂 **Source Grouping** | Resources grouped by source file with collapse/expand |
 | 📋 **Paste JSON** | Paste FHIR resources or any JSON via modal dialog |
-| 🔗 **Reference Navigation** | Click references to navigate to linked resources |
+| 🏗️ **Resource Creator** | Create FHIR resources and bundles with guided UI (Patient, Claim, Coverage, Observation, etc.) |
+| 🔗 **Reference Navigation** | Click references to navigate to linked resources (in both formatted and tree views) |
 | ⬅️ **Back Navigation** | Return to parent resource with Back button |
+| ✅ **FHIR Validation** | Validate bundles against NDHM India, NRCES, HL7 FHIR R4/R5, US Core, IPS, and more |
 | 🌗 **Dark/Light Mode** | Toggle themes with Ctrl+D |
-| 📊 **Formatted View** | Human-readable display with inline attachments |
-| 🌳 **JSON Tree View** | Interactive expand/collapse with download buttons |
+| 📊 **Formatted View** | Human-readable display with inline attachments and collapsible sections |
+| 🌳 **JSON Tree View** | Interactive expand/collapse with per-element toggle buttons |
 | 📝 **Plain JSON View** | Raw JSON for copying |
-| 📎 **Inline Attachments** | View/download images, PDFs, text, audio, video |
+| 📎 **Inline Attachments** | View/download images, PDFs, text, audio, video (handles base64 and data URIs) |
 | 🔍 **Search & Filter** | Real-time filtering by type or ID |
 | 📤 **Export Bundle** | Export all resources as FHIR Bundle |
 | 📋 **Generic JSON** | View any JSON data with Tree and formatted views |
-| 📄 **Multi-Format Files** | Accept .json, .txt, .text, .xml, .fhir and other text files containing JSON |
+| 📄 **Multi-Format Files** | Accept .json, .txt, .text, .xml, .fhir, .ndjson, .yaml, .md and other text files |
 | 🔒 **100% Client-side** | No data leaves your browser |
 
 ---
@@ -83,6 +85,29 @@ Fhir-Json-viewer/
 | `Ctrl+D` | Toggle dark mode |
 | `↑` / `↓` | Navigate resources |
 | `Esc` | Close modal |
+
+---
+
+## ✅ FHIR Validation
+
+Validate your FHIR bundles against multiple standards:
+
+| Standard | Description |
+|----------|-------------|
+| **NDHM India** | National Digital Health Mission (India) |
+| **NRCES India** | National Resource Centre for EHR Standards |
+| **HL7 FHIR R4** | HL7 FHIR Release 4 (International) |
+| **HL7 FHIR R5** | HL7 FHIR Release 5 (International) |
+| **US Core** | US Core Implementation Guide |
+| **IPS** | International Patient Summary |
+| **AU Core** | Australian Core Implementation Guide |
+
+### Validation Types
+
+- **Structure**: Validate resource structure and cardinality
+- **Terminology**: Validate code systems and value sets
+- **Business Rules**: Validate business logic and invariants
+- **Full Validation**: Complete validation (all checks)
 
 ---
 

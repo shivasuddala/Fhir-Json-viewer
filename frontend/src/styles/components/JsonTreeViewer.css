@@ -37,6 +37,44 @@
   background: var(--accent-subtle);
 }
 
+/* Per-element expand/collapse toggle button */
+.json-tree-toggle-children {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-left: 8px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  opacity: 0.5;
+}
+
+.json-tree-line:hover .json-tree-toggle-children {
+  opacity: 1;
+}
+
+.json-tree-toggle-children:hover {
+  border-color: var(--accent-muted);
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.json-tree-toggle-children.expanded {
+  color: var(--text-secondary);
+}
+
+.json-tree-toggle-children.collapsed {
+  color: var(--accent);
+}
+
 /* --- Base64 Data Download --- */
 .json-tree-base64 {
   display: inline-flex;

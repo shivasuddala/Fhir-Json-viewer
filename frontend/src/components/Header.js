@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import '../styles/components/Header.css';
 
-function Header({ resourceCount, onFileUpload, darkMode, onToggleDarkMode, onPasteClick, onExport, onClearAll }) {
+function Header({ resourceCount, onFileUpload, darkMode, onToggleDarkMode, onPasteClick, onExport, onClearAll, onValidate, onCreate }) {
   const fileRef = useRef();
   const folderRef = useRef();
 
@@ -57,6 +57,14 @@ function Header({ resourceCount, onFileUpload, darkMode, onToggleDarkMode, onPas
             <span>Paste</span>
           </button>
 
+          <button className="btn btn-header btn-header-create" onClick={onCreate} title="Create FHIR Resource/Bundle">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <span>Create</span>
+          </button>
+
           <button className="btn btn-header" onClick={onExport} title="Export as Bundle">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
@@ -65,6 +73,16 @@ function Header({ resourceCount, onFileUpload, darkMode, onToggleDarkMode, onPas
             </svg>
             <span>Export</span>
           </button>
+
+          {resourceCount > 0 && (
+            <button className="btn btn-header btn-header-validate" onClick={onValidate} title="Validate FHIR Bundle">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 12l2 2 4-4"/>
+                <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c2.12 0 4.07.74 5.61 1.97"/>
+              </svg>
+              <span>Validate</span>
+            </button>
+          )}
 
           {resourceCount > 0 && (
             <button className="btn btn-header btn-header-danger" onClick={onClearAll} title="Clear All">

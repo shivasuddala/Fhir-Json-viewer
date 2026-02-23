@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useImperativeHandle, forwardRef, useMemo } from 'react';
+import React, { useState, useCallback, useRef, useImperativeHandle, forwardRef, useMemo, useEffect } from 'react';
 import '../styles/components/JsonTreeViewer.css';
 
 /**
@@ -53,6 +53,7 @@ const JsonTreeViewer = forwardRef(({ data, onNavigateToRef }, ref) => {
           depth={0}
           onNavigateToRef={onNavigateToRef}
           forceExpand={expandAll}
+          parentExpandKey={expandKey}
         />
       </div>
     </div>
@@ -61,7 +62,7 @@ const JsonTreeViewer = forwardRef(({ data, onNavigateToRef }, ref) => {
 
 JsonTreeViewer.displayName = 'JsonTreeViewer';
 
-function JsonNode({ name, value, depth, onNavigateToRef, forceExpand }) {
+function JsonNode({ name, value, depth, onNavigateToRef, forceExpand, parentExpandKey }) {
   // Determine initial expanded state
   const getInitialExpanded = () => {
     if (forceExpand === true) return true;
@@ -70,6 +71,27 @@ function JsonNode({ name, value, depth, onNavigateToRef, forceExpand }) {
   };
 
   const [expanded, setExpanded] = useState(getInitialExpanded);
+  const [childrenExpanded, setChildrenExpanded] = useState(forceExpand !== false);
+  const [localForceExpand, setLocalForceExpand] = useState(null); // null = inherit, true = expand all, false = collapse all
+  const [localExpandKey, setLocalExpandKey] = useState(0); // force re-render on local expand/collapse
+
+  // Respond to forceExpand changes from parent
+  useEffect(() => {
+    if (forceExpand === true) {
+      setExpanded(true);
+      setChildrenExpanded(true);
+      setLocalForceExpand(null);
+    } else if (forceExpand === false) {
+      setExpanded(depth < 1); // Keep root expanded, collapse everything else
+      setChildrenExpanded(false);
+      setLocalForceExpand(null);
+    } else {
+      // Reset to default
+      setExpanded(depth < 2);
+      setChildrenExpanded(true);
+      setLocalForceExpand(null);
+    }
+  }, [forceExpand, parentExpandKey, depth]);
 
   const type = getType(value);
   const isExpandable = type === 'object' || type === 'array';
@@ -78,17 +100,40 @@ function JsonNode({ name, value, depth, onNavigateToRef, forceExpand }) {
     (type === 'array' && value.length === 0)
   );
 
+  // Check if this node has nested expandable children
+  const hasNestedExpandable = useMemo(() => {
+    if (!isExpandable) return false;
+    const entries = type === 'object' ? Object.values(value) : value;
+    return entries.some(v => {
+      if (v === null) return false;
+      return typeof v === 'object' && (Array.isArray(v) ? v.length > 0 : Object.keys(v).length > 0);
+    });
+  }, [value, type, isExpandable]);
+
   const toggleExpand = useCallback((e) => {
     e.stopPropagation();
     setExpanded(prev => !prev);
+    setLocalForceExpand(null); // reset local force when manually toggling
   }, []);
 
-  // Check if this is a FHIR reference
+  // Single toggle for children - toggles between expand all and collapse all
+  const handleToggleChildren = useCallback((e) => {
+    e.stopPropagation();
+    setExpanded(true); // keep this node expanded
+    const newState = !childrenExpanded;
+    setChildrenExpanded(newState);
+    setLocalForceExpand(newState);
+    setLocalExpandKey(k => k + 1);
+  }, [childrenExpanded]);
+
+  // Check if this is a FHIR reference - check both 'reference' field and any field with FHIR reference pattern
   const isReference = name === 'reference' && typeof value === 'string';
   const isReferenceValue = isReference && isFhirReference(value);
 
-  // Check if this is a URL
-  const isUrl = typeof value === 'string' && (value.startsWith('http://') || value.startsWith('https://'));
+  // Check if this is a URL (but NOT a FHIR reference URL - those should navigate internally)
+  const isUrl = typeof value === 'string' &&
+    (value.startsWith('http://') || value.startsWith('https://')) &&
+    !isFhirReference(value);
 
   // Check if this is base64 data (attachment), data URI, or double-encoded
   const attachmentInfo = useMemo(() => {
@@ -288,17 +333,28 @@ function JsonNode({ name, value, depth, onNavigateToRef, forceExpand }) {
               <span className="json-tree-bracket">{bracketClose}</span>
             </>
           )}
+          {/* Per-element expand/collapse toggle - only show if has nested expandable children */}
+          {hasNestedExpandable && expanded && (
+            <button
+              className={`json-tree-toggle-children ${childrenExpanded ? 'expanded' : 'collapsed'}`}
+              onClick={handleToggleChildren}
+              title={childrenExpanded ? 'Collapse all nested' : 'Expand all nested'}
+            >
+              {childrenExpanded ? '⊟' : '⊞'}
+            </button>
+          )}
         </div>
         {expanded && (
           <div className="json-tree-children">
             {entries.map(([key, val], index) => (
-              <div key={key} className="json-tree-child">
+              <div key={`${key}-${localExpandKey}`} className="json-tree-child">
                 <JsonNode
                   name={type === 'object' ? key : null}
                   value={val}
                   depth={depth + 1}
                   onNavigateToRef={onNavigateToRef}
-                  forceExpand={forceExpand}
+                  forceExpand={localForceExpand !== null ? localForceExpand : forceExpand}
+                  parentExpandKey={localExpandKey}
                 />
                 {index < entries.length - 1 && <span className="json-tree-comma">,</span>}
               </div>

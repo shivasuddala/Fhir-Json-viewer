@@ -3,6 +3,8 @@ import Header from './components/Header';
 import SidePanel from './components/SidePanel';
 import PastePanel from './components/PastePanel';
 import ViewerPanel from './components/ViewerPanel';
+import ValidationPanel from './components/ValidationPanel';
+import BundleCreator from './components/BundleCreator';
 import Notification from './components/Notification';
 import { parseJson } from './utils/parser';
 import './App.css';
@@ -15,6 +17,8 @@ function App() {
   const [viewMode, setViewMode] = useState('formatted');
   const [darkMode, setDarkMode] = useState(false);
   const [showPasteModal, setShowPasteModal] = useState(false);
+  const [showValidationModal, setShowValidationModal] = useState(false);
+  const [showBundleCreator, setShowBundleCreator] = useState(false);
   const [filterType, setFilterType] = useState('All');
   const [isDragging, setIsDragging] = useState(false);
   const [navStack, setNavStack] = useState([]); // for reference navigation back
@@ -381,6 +385,8 @@ function App() {
         onPasteClick={() => setShowPasteModal(true)}
         onExport={handleExportAll}
         onClearAll={handleClearAll}
+        onValidate={() => setShowValidationModal(true)}
+        onCreate={() => setShowBundleCreator(true)}
       />
 
       <div className="main-container">
@@ -417,6 +423,22 @@ function App() {
         <PastePanel
           onParseAndAdd={handleParseAndAdd}
           onClose={() => setShowPasteModal(false)}
+        />
+      )}
+
+      {/* Validation Modal */}
+      {showValidationModal && (
+        <ValidationPanel
+          resources={resources}
+          onClose={() => setShowValidationModal(false)}
+        />
+      )}
+
+      {/* Bundle Creator Modal */}
+      {showBundleCreator && (
+        <BundleCreator
+          onClose={() => setShowBundleCreator(false)}
+          onAddResource={handleParseAndAdd}
         />
       )}
 

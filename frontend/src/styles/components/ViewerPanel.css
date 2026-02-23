@@ -189,13 +189,21 @@ kbd {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  background: var(--bg-app);
 }
 
-.formatted-view,
-.json-view {
+.formatted-view {
   flex: 1;
   overflow-y: auto;
   padding: 24px;
+  background: var(--bg-app);
+}
+
+.json-view {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+  background: var(--bg-app);
 }
 
 /* --- Formatted Sections --- */
@@ -266,18 +274,11 @@ kbd {
   word-break: break-word;
 }
 
-/* --- JSON View --- */
-.json-view {
-  background: var(--json-bg);
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
+/* --- JSON View Extended --- */
 .json-view.plain-json {
   overflow: auto;
   padding: 0;
+  background: var(--json-bg);
 }
 
 .plain-json .json-code {
@@ -288,10 +289,11 @@ kbd {
   line-height: 1.6;
   color: var(--json-text);
   white-space: pre;
+  background: var(--json-bg);
 }
 
 .json-code {
-  background: transparent;
+  background: var(--json-bg);
   color: var(--json-text);
   padding: 24px;
   font-family: 'JetBrains Mono', 'Consolas', monospace;
